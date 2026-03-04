@@ -1,78 +1,29 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import { pool } from './db.js'
+
+import jogadoresRoutes from './routes/jogadores.js'
+import torneiosRoutes from './routes/torneios.js'
+import participacoesRoutes from './routes/participacoes.js'
+import banlistsRoutes from './routes/banlists.js'
+import rankingRoutes from './routes/ranking.js'
+import tiposTorneioRoutes from './routes/tiposTorneio.js'
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 
-// Rota teste
 app.get('/', (req, res) => {
   res.send('Base da API do Yugioh')
 })
 
-/*
-========================
-RANKING GERAL
-========================
-*/
-app.get('/ranking', async (req, res) => {
-  try {
-    const result = await pool.query(`
-      select *
-      from public.ranking_geral
-      order by 
-        total_pontos desc,
-        total_vitorias desc,
-        aproveitamento desc,
-        total_derrotas asc,
-        participacoes desc;
-    `)
-
-    res.json(result.rows)
-  } catch (error) {
-    console.log("ERRO COMPLETO:", error)
-    res.status(500).json({ error: error.message })
-  }
-})
-
-/*
-========================
-LISTAR JOGADORES
-========================
-*/
-app.get('/jogadores', async (req, res) => {
-  try {
-    const result = await pool.query(`
-      select * from jogador
-      order by nickname
-    `)
-
-    res.json(result.rows)
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-})
-
-/*
-========================
-LISTAR TORNEIOS
-========================
-*/
-app.get('/torneios', async (req, res) => {
-  try {
-    const result = await pool.query(`
-      select * from torneio
-      order by data_inicio desc
-    `)
-
-    res.json(result.rows)
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-})
+app.use('/ranking', rankingRoutes)
+app.use('/jogadores', jogadoresRoutes)
+app.use('/torneios', torneiosRoutes)
+app.use('/participacoes', participacoesRoutes)
+app.use('/banlists', banlistsRoutes)
+app.use('/tipotorneio',tiposTorneioRoutes)
 
 const PORT = process.env.PORT || 3000
 
