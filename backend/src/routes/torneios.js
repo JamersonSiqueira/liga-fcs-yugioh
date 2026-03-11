@@ -62,11 +62,14 @@ router.get('/:id/classificacao', async (req, res) => {
   const { id } = req.params
 
   try {
+
     const result = await pool.query(
       `
       select
+        t.nome as torneio_nome,
         j.id as jogador_id,
         j.nickname,
+        p.deck,
         p.vitorias,
         p.derrotas,
         p.pontuacao_final,
@@ -78,6 +81,7 @@ router.get('/:id/classificacao', async (req, res) => {
         ) as colocacao
       from participacao_torneio p
       join jogador j on j.id = p.jogador_id
+      join torneio t on t.id = p.torneio_id
       where p.torneio_id = $1
       order by colocacao;
       `,
