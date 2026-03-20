@@ -8,10 +8,13 @@ import participacoesRoutes from './routes/participacoes.js'
 import banlistsRoutes from './routes/banlists.js'
 import rankingRoutes from './routes/ranking.js'
 import tiposTorneioRoutes from './routes/tiposTorneio.js'
+import adminRoutes from './routes/admin.js'
 
 const app = express()
 
-app.use(cors())
+app.use(cors({
+  origin: "*"
+}))
 app.use(express.json())
 
 app.get('/', (req, res) => {
@@ -24,6 +27,9 @@ app.use('/torneios', torneiosRoutes)
 app.use('/participacoes', participacoesRoutes)
 app.use('/banlists', banlistsRoutes)
 app.use('/tipotorneio',tiposTorneioRoutes)
+
+app.use('/admin', adminRoutes)
+
 
 const PORT = process.env.PORT || 3000
 

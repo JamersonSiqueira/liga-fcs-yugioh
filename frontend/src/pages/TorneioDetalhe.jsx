@@ -17,7 +17,7 @@ function TorneioDetalhe() {
         setClassificacao(data)
 
         if (data.length > 0) {
-          setTorneioNome(data[0].torneio_nome)
+          setTorneioNome(data[0].torneio_nome || "Torneio")
         }
 
       })
@@ -25,25 +25,29 @@ function TorneioDetalhe() {
 
   }, [id])
 
-  // TOP 3 jogadores apenas
+
+  // TOP 3 do pódio
   const podium = classificacao.slice(0, 3)
-  
+
+
+  // ESTATÍSTICA DE DECKS
   const deckStats = {}
 
   classificacao.forEach(player => {
 
-  const deck = player.deck || "Não informado"
+    const deck = player.deck || "Não informado"
 
-  if (!deckStats[deck]) {
-    deckStats[deck] = 0
-  }
+    if (!deckStats[deck]) {
+      deckStats[deck] = 0
+    }
 
-  deckStats[deck]++
+    deckStats[deck]++
 
-})
+  })
 
-    const deckRanking = Object.entries(deckStats)
+  const deckRanking = Object.entries(deckStats)
     .sort((a, b) => b[1] - a[1])
+
 
   return (
 
@@ -105,7 +109,7 @@ function TorneioDetalhe() {
       )}
 
 
-      {/* TABELA */}
+      {/* TABELA DE CLASSIFICAÇÃO */}
 
       <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
 
@@ -165,57 +169,57 @@ function TorneioDetalhe() {
 
       </div>
 
-      
-        {/* META DO TORNEIO */}
 
-<div className="mt-10">
 
-  <h2 className="text-2xl font-bold text-white mb-4">
-    Meta do Torneio
-  </h2>
+      {/* META DO TORNEIO */}
 
-  <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+      <div className="mt-10">
 
-    <table className="w-full text-sm">
+        <h2 className="text-2xl font-bold text-white mb-4">
+          Meta do Torneio
+        </h2>
 
-      <thead className="bg-slate-800 text-slate-300">
-        <tr>
-          <th className="p-3 text-left">Deck</th>
-          <th className="p-3 text-right">Jogadores</th>
-        </tr>
-      </thead>
+        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
 
-      <tbody>
+          <table className="w-full text-sm">
 
-        {deckRanking.map(([deck, total]) => (
+            <thead className="bg-slate-800 text-slate-300">
+              <tr>
+                <th className="p-3 text-left">Deck</th>
+                <th className="p-3 text-right">Jogadores</th>
+              </tr>
+            </thead>
 
-          <tr
-            key={deck}
-            className="border-t border-slate-800 hover:bg-slate-800"
-          >
+            <tbody>
 
-            <td className="p-3 text-white">
-              {deck}
-            </td>
+              {deckRanking.map(([deck, total]) => (
 
-            <td className="p-3 text-right text-sky-400 font-bold">
-              {total}
-            </td>
+                <tr
+                  key={deck}
+                  className="border-t border-slate-800 hover:bg-slate-800"
+                >
 
-          </tr>
+                  <td className="p-3 text-white">
+                    {deck}
+                  </td>
 
-        ))}
+                  <td className="p-3 text-right text-sky-400 font-bold">
+                    {total}
+                  </td>
 
-      </tbody>
+                </tr>
 
-    </table>
+              ))}
 
-  </div>
+            </tbody>
 
-</div>
+          </table>
+
+        </div>
+
+      </div>
 
     </div>
-    
   )
 }
 

@@ -66,22 +66,38 @@ router.get('/:id/classificacao', async (req, res) => {
     const result = await pool.query(
       `
       select
+        p.id,
         t.nome as torneio_nome,
         j.id as jogador_id,
         j.nickname,
         p.deck,
         p.vitorias,
         p.derrotas,
-        p.pontuacao_final,
+
+        case
+          when tt.modelo_codigo = 'WLD' then (p.vitorias * 3)
+          when tt.modelo_codigo = 'FIXO' then coalesce(p.pontuacao_final, 0)
+          when tt.modelo_codigo = 'SEM_RANKING' then (p.vitorias * 3)
+          else 0
+        end as pontuacao_final,
+
         rank() over (
           order by 
-            p.pontuacao_final desc,
+            case
+              when tt.modelo_codigo = 'WLD' then (p.vitorias * 3)
+              when tt.modelo_codigo = 'FIXO' then coalesce(p.pontuacao_final, 0)
+              when tt.modelo_codigo = 'SEM_RANKING' then (p.vitorias * 3)
+              else 0
+            end desc,
             p.vitorias desc,
             p.derrotas asc
         ) as colocacao
+
       from participacao_torneio p
       join jogador j on j.id = p.jogador_id
       join torneio t on t.id = p.torneio_id
+      join tipo_torneio tt on tt.id = t.tipo_id
+
       where p.torneio_id = $1
       order by colocacao;
       `,
@@ -109,6 +125,7 @@ router.get('/', async (req, res) => {
       select
         t.id,
         t.nome,
+        t.tipo_id,
         t.data_inicio,
         tt.nome as tipo_torneio,
         b.nome as banlist
@@ -161,5 +178,68 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 })
+
+/*
+========================
+PUT - editar torneio
+========================
+*/
+router.put('/:id', adminMiddleware, async (req, res) => {
+
+  const { id } = req.params
+  const { nome, tipo_id, data_inicio } = req.body
+
+  try {
+
+    const ano = new Date(data_inicio).getFullYear()
+
+    const result = await pool.query(`
+      update torneio
+      set nome = $1,
+          tipo_id = $2,
+          data_inicio = $3,
+          ano = $4
+      where id = $5
+      returning *
+    `, [nome, tipo_id, data_inicio, ano, id])
+
+    res.json(result.rows[0])
+
+  } catch (error) {
+
+    console.log(error)
+    res.status(500).json({ error: error.message })
+
+  }
+
+})
+
+/*
+========================
+DELETE - remover torneio
+========================
+*/
+router.delete('/:id', adminMiddleware, async (req, res) => {
+
+  const { id } = req.params
+
+  try {
+
+    await pool.query(`
+      delete from torneio
+      where id = $1
+    `, [id])
+
+    res.json({ message: "Torneio removido com sucesso" })
+
+  } catch (error) {
+
+    console.log(error)
+    res.status(500).json({ error: error.message })
+
+  }
+
+})
+
 
 export default router

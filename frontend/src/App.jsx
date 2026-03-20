@@ -4,10 +4,10 @@ import MainLayout from "./layouts/MainLayout"
 import Ranking from "./pages/Ranking"
 import Torneios from "./pages/Torneios"
 import TorneioDetalhe from "./pages/TorneioDetalhe"
+import Admin from "./pages/Admin"
+import Banlists from "./pages/Banlists"
+import AdminPanel from "./pages/admin/AdminPanel"
 
-function Banlists() {
-  return <div className="text-white">Página de Banlists</div>
-}
 
 function App() {
   return (
@@ -22,6 +22,10 @@ function App() {
         <Route path="/torneios/:id" element={<TorneioDetalhe />} />
 
         <Route path="/banlists" element={<Banlists />} />
+        
+        <Route path="/ajustesold" element={<Admin />} />
+
+        <Route path="/ajustes" element={<AdminPanel />} />
 
       </Routes>
 
