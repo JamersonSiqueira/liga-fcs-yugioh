@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+import { API_URL } from "../services/api"
 
 function TorneioDetalhe() {
 
@@ -10,7 +11,7 @@ function TorneioDetalhe() {
 
   useEffect(() => {
 
-    fetch(`http://localhost:3000/torneios/${id}/classificacao`)
+    fetch(`${API_URL}/torneios/${id}/classificacao`)
       .then(res => res.json())
       .then(data => {
 

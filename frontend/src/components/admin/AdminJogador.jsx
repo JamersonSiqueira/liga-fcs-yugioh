@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { fetchAdmin } from "../../services/adminFetch"
+import { API_URL } from "../../services/api"
 
 function AdminJogador() {
 
@@ -9,7 +10,7 @@ function AdminJogador() {
   async function criarJogador() {
 
     const res = await fetchAdmin(
-      "http://localhost:3000/jogadores",
+      `${API_URL}/jogadores`,
       {
         method: "POST",
         body: JSON.stringify({

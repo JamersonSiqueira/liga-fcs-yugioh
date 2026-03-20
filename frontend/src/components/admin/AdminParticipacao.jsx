@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { fetchAdmin } from "../../services/adminFetch"
+import { API_URL } from "../../services/api"
 
 function AdminParticipacao() {
 
@@ -14,11 +15,11 @@ function AdminParticipacao() {
 
   useEffect(() => {
 
-    fetch("http://localhost:3000/jogadores")
+    fetch(`${API_URL}/jogadores`)
       .then(res => res.json())
       .then(data => setJogadores(data))
 
-    fetch("http://localhost:3000/torneios")
+    fetch(`${API_URL}/torneios`)
       .then(res => res.json())
       .then(data => setTorneios(data))
 
@@ -27,7 +28,7 @@ function AdminParticipacao() {
   async function criarParticipacao() {
 
     const res = await fetchAdmin(
-      "http://localhost:3000/participacoes",
+      `${API_URL}/participacoes`,
       {
         method: "POST",
         body: JSON.stringify({

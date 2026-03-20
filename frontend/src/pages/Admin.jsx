@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-
 import adminImg from "../assets/admin.png"
-
 import AdminTorneio from "../components/admin/AdminTorneio"
 import AdminJogador from "../components/admin/AdminJogador"
 import AdminParticipacao from "../components/admin/AdminParticipacao"
+import { API_URL } from "../services/api"
 
 function Admin() {
 
@@ -21,7 +20,7 @@ function Admin() {
 
     try {
 
-      const res = await fetch("http://localhost:3000/admin/teste", {
+      const res = await fetch(`${API_URL}/admin/teste`, {
         headers: {
           "x-admin-key": key
         }
@@ -59,7 +58,7 @@ function Admin() {
 
     async function verificarAdmin() {
 
-      const res = await fetch("http://localhost:3000/admin/teste", {
+      const res = await fetch(`${API_URL}/admin/teste`, {
         headers: {
           "x-admin-key": savedKey
         }

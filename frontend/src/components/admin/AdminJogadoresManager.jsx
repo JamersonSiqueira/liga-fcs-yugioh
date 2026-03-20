@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { fetchAdmin } from "../../services/adminFetch"
+import { API_URL } from "../../services/api"
 
 function AdminJogadoresManager() {
 
@@ -12,7 +13,7 @@ function AdminJogadoresManager() {
 
   async function carregarJogadores() {
 
-    const res = await fetch("http://localhost:3000/jogadores")
+    const res = await fetch(`${API_URL}/jogadores`)
     const data = await res.json()
 
     setJogadores(data)
@@ -23,7 +24,7 @@ function AdminJogadoresManager() {
 
     async function carregar() {
 
-    const res = await fetch("http://localhost:3000/jogadores")
+    const res = await fetch(`${API_URL}/jogadores`)
     const data = await res.json()
 
     setJogadores(data)
@@ -42,11 +43,11 @@ function AdminJogadoresManager() {
       return
     }
 
-    let url = "http://localhost:3000/jogadores"
+    let url = `${API_URL}jogadores`
     let method = "POST"
 
     if (editandoId) {
-      url = `http://localhost:3000/jogadores/${editandoId}`
+      url = `${API_URL}/jogadores/${editandoId}`
       method = "PUT"
     }
 
@@ -83,7 +84,7 @@ function AdminJogadoresManager() {
     if (!confirm("Deseja remover este jogador?")) return
 
     const res = await fetchAdmin(
-      `http://localhost:3000/jogadores/${id}`,
+      `${API_URL}/jogadores/${id}`,
       {
         method: "DELETE"
       }

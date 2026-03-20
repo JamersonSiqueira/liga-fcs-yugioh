@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { fetchAdmin } from "../../services/adminFetch"
+import { API_URL } from "../../services/api"
 
 function AdminTorneio() {
 
@@ -11,7 +12,7 @@ function AdminTorneio() {
 
   useEffect(() => {
 
-    fetch("http://localhost:3000/tipotorneio")
+    fetch(`${API_URL}/tipotorneio`)
       .then(res => res.json())
       .then(data => setTipos(data))
 
@@ -20,7 +21,7 @@ function AdminTorneio() {
   async function criarTorneio() {
 
     const res = await fetchAdmin(
-      "http://localhost:3000/torneios",
+      `${API_URL}/torneios`,
       {
         method: "POST",
         body: JSON.stringify({

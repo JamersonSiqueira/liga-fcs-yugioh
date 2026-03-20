@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+import { API_URL } from "../services/api"
 
 function Torneios() {
 
@@ -7,7 +8,7 @@ function Torneios() {
 
   useEffect(() => {
 
-    fetch("http://localhost:3000/torneios")
+    fetch(`${API_URL}/torneios`)
       .then(res => res.json())
       .then(data => setTorneios(data))
       .catch(err => console.log(err))

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000"
+import { API_URL } from "../services/api"
 
 export async function fetchAdmin(url, options = {}) {
 
