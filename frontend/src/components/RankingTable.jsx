@@ -1,3 +1,6 @@
+import React from "react"
+import { Link } from "react-router-dom"
+
 function RankingTable({ ranking }) {
 
   const getMedal = (position) => {
@@ -33,60 +36,62 @@ function RankingTable({ ranking }) {
 
         <tbody>
 
-{ranking.map((player, index) => {
+          {ranking.map((player, index) => {
 
-  const position = index + 1
+            const position = index + 1
 
-  return (
-    <>
+            return (
+              <React.Fragment key={player.id}>
 
-      <tr
-        key={player.id}
-        className={getRowStyle(position)}
-      >
+                <tr className={getRowStyle(position)}>
 
-        <td className="p-3 font-bold text-slate-300">
-          {getMedal(position)}
-        </td>
+                  <td className="p-3 font-bold text-slate-300">
+                    {getMedal(position)}
+                  </td>
 
-        <td className="p-3 font-medium text-white">
-          {player.nickname}
-        </td>
+                  <td className="p-3 text-white font-bold">
+                    <Link
+                      to={`/jogador/${player.jogador_id}`}
+                      className="hover:underline hover:text-sky-400 transition"
+                    >
+                      {player.nickname}
+                    </Link>
+                  </td>
 
-        <td className="p-3 text-right text-sky-400 font-bold">
-          {player.total_pontos}
-        </td>
+                  <td className="p-3 text-right text-sky-400 font-bold">
+                    {player.total_pontos}
+                  </td>
 
-        <td className="p-3 text-right hidden sm:table-cell">
-          {player.total_vitorias}
-        </td>
+                  <td className="p-3 text-right hidden sm:table-cell">
+                    {player.total_vitorias}
+                  </td>
 
-        <td className="p-3 text-right hidden sm:table-cell">
-          {player.total_derrotas}
-        </td>
+                  <td className="p-3 text-right hidden sm:table-cell">
+                    {player.total_derrotas}
+                  </td>
 
-        <td className="p-3 text-right hidden sm:table-cell">
-          {player.aproveitamento}%
-        </td>
+                  <td className="p-3 text-right hidden sm:table-cell">
+                    {player.aproveitamento}%
+                  </td>
 
-      </tr>
+                </tr>
 
-      {position === 8 && (
-        <tr>
-          <td
-            colSpan="6"
-            className="text-center text-xs text-sky-400 py-3 border-t border-sky-800 bg-sky-900/30 tracking-widest"
-          >
-            ───────── CORTE TOP 8 ─────────
-          </td>
-        </tr>
-      )}
+                {position === 8 && (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="text-center text-xs text-sky-400 py-3 border-t border-sky-800 bg-sky-900/30 tracking-widest"
+                    >
+                      ───────── CORTE TOP 8 ─────────
+                    </td>
+                  </tr>
+                )}
 
-    </>
-  )
-})}
+              </React.Fragment>
+            )
+          })}
 
-</tbody>
+        </tbody>
 
       </table>
 

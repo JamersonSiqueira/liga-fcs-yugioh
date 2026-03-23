@@ -12,39 +12,44 @@ function AdminParticipacoesManager() {
   const [deck, setDeck] = useState("")
   const [vitorias, setVitorias] = useState(0)
   const [derrotas, setDerrotas] = useState(0)
+  const [colocacaoManual, setColocacaoManual] = useState("")
 
   const [editandoId, setEditandoId] = useState(null)
 
-  // =========================
-  // LOAD INICIAL
-  // =========================
   useEffect(() => {
+
+    let active = true
 
     async function load() {
 
       const resTorneios = await fetchAdmin("/torneios")
       const resJogadores = await fetchAdmin("/jogadores")
 
+      if (!active) return
+
       if (resTorneios && resTorneios.ok) {
         const data = await resTorneios.json()
-        setTorneios(data)
+        if (active) setTorneios(data)
       }
 
       if (resJogadores && resJogadores.ok) {
         const data = await resJogadores.json()
-        setJogadores(data)
+        if (active) setJogadores(data)
       }
 
     }
 
     load()
 
+    return () => {
+      active = false
+    }
+
   }, [])
 
-  // =========================
-  // LOAD PARTICIPACOES
-  // =========================
   useEffect(() => {
+
+    let active = true
 
     async function loadParticipacoes() {
 
@@ -57,30 +62,29 @@ function AdminParticipacoesManager() {
         `/torneios/${torneioSelecionado}/classificacao`
       )
 
-      if (!res || !res.ok) return
+      if (!res || !res.ok || !active) return
 
       const data = await res.json()
-      setParticipacoes(data)
+      if (active) setParticipacoes(data)
     }
 
     loadParticipacoes()
 
+    return () => {
+      active = false
+    }
+
   }, [torneioSelecionado])
 
-  // =========================
-  // FORM
-  // =========================
   function limparFormulario() {
     setJogador("")
     setDeck("")
     setVitorias(0)
     setDerrotas(0)
+    setColocacaoManual("")
     setEditandoId(null)
   }
 
-  // =========================
-  // SAVE
-  // =========================
   async function salvarParticipacao() {
 
     if (!torneioSelecionado) {
@@ -98,7 +102,8 @@ function AdminParticipacoesManager() {
       torneio_id: torneioSelecionado,
       vitorias: Number(vitorias),
       derrotas: Number(derrotas),
-      deck
+      deck,
+      colocacao_manual: colocacaoManual ? Number(colocacaoManual) : null
     }
 
     let res
@@ -125,7 +130,6 @@ function AdminParticipacoesManager() {
 
     limparFormulario()
 
-    // reload manual (sem duplicar lógica)
     const reload = await fetchAdmin(
       `/torneios/${torneioSelecionado}/classificacao`
     )
@@ -136,20 +140,15 @@ function AdminParticipacoesManager() {
     }
   }
 
-  // =========================
-  // EDIT
-  // =========================
   function editarParticipacao(p) {
     setEditandoId(p.id)
     setJogador(p.jogador_id)
     setDeck(p.deck)
     setVitorias(p.vitorias)
     setDerrotas(p.derrotas)
+    setColocacaoManual(p.colocacao_manual || "")
   }
 
-  // =========================
-  // DELETE
-  // =========================
   async function deletarParticipacao(id) {
 
     if (!confirm("Deseja deletar esta participação?")) return
@@ -165,7 +164,6 @@ function AdminParticipacoesManager() {
       return
     }
 
-    // reload padronizado
     const reload = await fetchAdmin(
       `/torneios/${torneioSelecionado}/classificacao`
     )
@@ -176,9 +174,6 @@ function AdminParticipacoesManager() {
     }
   }
 
-  // =========================
-  // RENDER
-  // =========================
   return (
 
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
@@ -238,6 +233,14 @@ function AdminParticipacoesManager() {
           className="bg-slate-800 border border-slate-700 rounded p-2 text-white"
         />
 
+        <input
+          type="number"
+          placeholder="Colocação manual (opcional)"
+          value={colocacaoManual}
+          onChange={(e) => setColocacaoManual(e.target.value)}
+          className="bg-slate-800 border border-slate-700 rounded p-2 text-white"
+        />
+
         <div className="flex gap-2">
 
           <button
@@ -271,6 +274,7 @@ function AdminParticipacoesManager() {
               <th>Vitórias</th>
               <th>Derrotas</th>
               <th>Pontos</th>
+              <th>Colocação</th>
               <th></th>
             </tr>
           </thead>
@@ -283,6 +287,7 @@ function AdminParticipacoesManager() {
                 <td>{p.vitorias}</td>
                 <td>{p.derrotas}</td>
                 <td>{p.pontuacao_final}</td>
+                <td>{p.colocacao_manual || "-"}</td>
 
                 <td className="flex gap-2">
                   <button

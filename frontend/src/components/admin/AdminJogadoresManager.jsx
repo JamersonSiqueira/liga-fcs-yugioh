@@ -43,7 +43,7 @@ function AdminJogadoresManager() {
       return
     }
 
-    let url = `${API_URL}jogadores`
+    let url = `${API_URL}/jogadores`
     let method = "POST"
 
     if (editandoId) {

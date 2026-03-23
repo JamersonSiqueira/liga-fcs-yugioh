@@ -22,7 +22,8 @@ router.get('/', async (req, res) => {
         t.id as torneio_id,
         p.vitorias,
         p.derrotas,
-        p.deck
+        p.deck,
+        p.colocacao_manual
       from participacao_torneio p
       join jogador j on j.id = p.jogador_id
       join torneio t on t.id = p.torneio_id
@@ -52,35 +53,35 @@ router.post('/', adminMiddleware, async (req, res) => {
     torneio_id,
     vitorias,
     derrotas,
-    deck
+    deck,
+    colocacao_manual
   } = req.body
 
   try {
 
     const result = await pool.query(
       `insert into participacao_torneio
-       (jogador_id, torneio_id, vitorias, derrotas, deck)
-       values ($1, $2, $3, $4, $5)
+       (jogador_id, torneio_id, vitorias, derrotas, deck, colocacao_manual)
+       values ($1, $2, $3, $4, $5, $6)
        returning *`,
-      [jogador_id, torneio_id, vitorias, derrotas, deck]
+      [jogador_id, torneio_id, vitorias, derrotas, deck, colocacao_manual || null]
     )
 
     res.status(201).json(result.rows[0])
 
   } catch (error) {
 
-  console.log(error)
+    console.log(error)
 
-  // 🔥 ERRO DE DUPLICIDADE
-  if (error.code === '23505') {
-    return res.status(409).json({
-      error: "Este jogador já está inscrito neste torneio"
-    })
+    if (error.code === '23505') {
+      return res.status(409).json({
+        error: "Este jogador já está inscrito neste torneio"
+      })
+    }
+
+    res.status(500).json({ error: error.message })
+
   }
-
-  res.status(500).json({ error: error.message })
-
-}
 
 })
 
@@ -92,7 +93,7 @@ PUT - editar participação
 router.put('/:id', adminMiddleware, async (req, res) => {
 
   const { id } = req.params
-  const { vitorias, derrotas, deck } = req.body
+  const { vitorias, derrotas, deck, colocacao_manual } = req.body
 
   try {
 
@@ -100,10 +101,11 @@ router.put('/:id', adminMiddleware, async (req, res) => {
       update participacao_torneio
       set vitorias = $1,
           derrotas = $2,
-          deck = $3
-      where id = $4
+          deck = $3,
+          colocacao_manual = $4
+      where id = $5
       returning *
-    `, [vitorias, derrotas, deck, id])
+    `, [vitorias, derrotas, deck, colocacao_manual || null, id])
 
     res.json(result.rows[0])
 

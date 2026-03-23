@@ -10,7 +10,7 @@ function isUUID(value) {
 
 // POST - criar torneio
 router.post('/', adminMiddleware, async (req, res) => {
-  const { nome, tipo_id, data_inicio } = req.body
+  const { nome, tipo_id, data_inicio, tem_top_cut, top_cut } = req.body
 
   try {
     if (!data_inicio) {
@@ -42,10 +42,10 @@ router.post('/', adminMiddleware, async (req, res) => {
 
     // 2️⃣ Criar torneio já vinculado à banlist ativa
     const result = await pool.query(
-      `insert into torneio (nome, tipo_id, data_inicio, ano, banlist_id)
-       values ($1, $2, $3, $4, $5)
-       returning *`,
-      [nome, tipo_id, data_inicio, ano, banlist_id]
+      `insert into torneio (nome, tipo_id, data_inicio, ano, banlist_id, tem_top_cut, top_cut)
+      values ($1, $2, $3, $4, $5, $6, $7)
+      returning *`,
+      [nome, tipo_id, data_inicio, ano, banlist_id, tem_top_cut || false, top_cut || null]
     )
 
     res.status(201).json(result.rows[0])
@@ -63,11 +63,13 @@ router.get('/:id/classificacao', async (req, res) => {
 
   try {
 
-    const result = await pool.query(
-      `
+    const result = await pool.query(`
       select
         p.id,
         t.nome as torneio_nome,
+        t.tem_top_cut,
+        t.top_cut,
+
         j.id as jogador_id,
         j.nickname,
         p.deck,
@@ -81,16 +83,15 @@ router.get('/:id/classificacao', async (req, res) => {
           else 0
         end as pontuacao_final,
 
-        rank() over (
-          order by 
+        row_number() over (
+          order by
+            p.colocacao_manual asc nulls last,
             case
               when tt.modelo_codigo = 'WLD' then (p.vitorias * 3)
               when tt.modelo_codigo = 'FIXO' then coalesce(p.pontuacao_final, 0)
               when tt.modelo_codigo = 'SEM_RANKING' then (p.vitorias * 3)
               else 0
-            end desc,
-            p.vitorias desc,
-            p.derrotas asc
+            end desc
         ) as colocacao
 
       from participacao_torneio p
@@ -99,10 +100,7 @@ router.get('/:id/classificacao', async (req, res) => {
       join tipo_torneio tt on tt.id = t.tipo_id
 
       where p.torneio_id = $1
-      order by colocacao;
-      `,
-      [id]
-    )
+    `, [id])
 
     res.json(result.rows)
 
@@ -123,12 +121,15 @@ router.get('/', async (req, res) => {
   try {
     let query = `
       select
-        t.id,
-        t.nome,
-        t.tipo_id,
-        t.data_inicio,
-        tt.nome as tipo_torneio,
-        b.nome as banlist
+      t.id,
+      t.nome,
+      t.tipo_id,
+      t.data_inicio,
+      tt.nome as tipo_torneio,
+      tt.modelo_codigo,
+      b.nome as banlist,
+      t.tem_top_cut,
+      t.top_cut
       from torneio t
       left join tipo_torneio tt on tt.id = t.tipo_id
       left join banlist b on b.id = t.banlist_id
@@ -187,7 +188,7 @@ PUT - editar torneio
 router.put('/:id', adminMiddleware, async (req, res) => {
 
   const { id } = req.params
-  const { nome, tipo_id, data_inicio } = req.body
+  const { nome, tipo_id, data_inicio, tem_top_cut, top_cut } = req.body
 
   try {
 
@@ -198,8 +199,10 @@ router.put('/:id', adminMiddleware, async (req, res) => {
       set nome = $1,
           tipo_id = $2,
           data_inicio = $3,
-          ano = $4
-      where id = $5
+          ano = $4,
+          tem_top_cut = $5,
+          top_cut = $6
+      where id = $7
       returning *
     `, [nome, tipo_id, data_inicio, ano, id])
 

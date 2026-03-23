@@ -7,7 +7,7 @@ import TorneioDetalhe from "./pages/TorneioDetalhe"
 import Admin from "./pages/Admin"
 import Banlists from "./pages/Banlists"
 import AdminPanel from "./pages/admin/AdminPanel"
-
+import JogadorDetalhe from "./pages/JogadorDetalhe"
 
 function App() {
   return (
@@ -26,6 +26,8 @@ function App() {
         <Route path="/ajustesold" element={<Admin />} />
 
         <Route path="/ajustes" element={<AdminPanel />} />
+
+        <Route path="/jogador/:id" element={<JogadorDetalhe />} />
 
       </Routes>
 
