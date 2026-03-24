@@ -32,7 +32,7 @@ function Banlists() {
   }, [])
 
   // =========================
-  // AGRUPAR
+  // AGRUPAMENTO
   // =========================
   const forbidden = cartas.filter(
     c => c.banlist_info?.ban_tcg === "Forbidden"
@@ -46,16 +46,13 @@ function Banlists() {
     c => c.banlist_info?.ban_tcg === "Semi-Limited"
   )
 
-  // =========================
-  // LISTA
-  // =========================
   function renderLista(lista) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {lista.map(card => (
           <div
             key={card.id}
-            className="bg-slate-800 rounded p-2 text-center"
+            className="bg-slate-800 rounded p-2 text-center hover:bg-slate-700 transition"
           >
             <img
               src={card.card_images?.[0]?.image_url_small}
@@ -77,38 +74,22 @@ function Banlists() {
     <div className="max-w-6xl mx-auto p-6 text-white">
 
       {/* =========================
-          ESTATÍSTICAS (PRIORIDADE)
-      ========================= */}
-      <h1 className="text-3xl font-bold mb-6">
-        Estatísticas por Banlist
-      </h1>
-
-      <div className="mb-10 border border-slate-800 rounded-xl p-6 bg-slate-900">
-        <p className="text-slate-400">
-          Aqui ficarão as estatísticas dos decks por período de banlist
-        </p>
-      </div>
-
-      {/* =========================
-          BOTÃO TOGGLE
-      ========================= */}
-      <button
-        onClick={() => setMostrarBanlist(prev => !prev)}
-        className="mb-6 bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded"
-      >
-        {mostrarBanlist ? "Ocultar Banlist Atual" : "Mostrar Banlist Atual"}
-      </button>
-
-      {/* =========================
           BANLIST
       ========================= */}
+      <h2 className="text-2xl font-bold mb-4">
+        Banlist Oficial (TCG)
+      </h2>
+
+      <button
+        onClick={() => setMostrarBanlist(prev => !prev)}
+        className="mb-6 bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded transition"
+      >
+        {mostrarBanlist ? "Ocultar Banlist" : "Mostrar Banlist"}
+      </button>
+
       {mostrarBanlist && (
 
         <div>
-
-          <h2 className="text-2xl font-bold mb-6">
-            Banlist Atual (TCG)
-          </h2>
 
           {loading && <p>Carregando...</p>}
           {erro && <p className="text-red-500">{erro}</p>}
@@ -117,7 +98,6 @@ function Banlists() {
 
             <div className="space-y-10">
 
-              {/* FORBIDDEN */}
               <div>
                 <h3 className="text-xl font-bold mb-3 text-red-400">
                   Forbidden ({forbidden.length})
@@ -125,7 +105,6 @@ function Banlists() {
                 {renderLista(forbidden)}
               </div>
 
-              {/* LIMITED */}
               <div>
                 <h3 className="text-xl font-bold mb-3 text-yellow-400">
                   Limited ({limited.length})
@@ -133,9 +112,8 @@ function Banlists() {
                 {renderLista(limited)}
               </div>
 
-              {/* SEMI */}
               <div>
-                <h3 className="text-xl font-bold mb-3 text-blue-400">
+                <h3 className="text-xl font-bold mb-3 text-sky-400">
                   Semi-Limited ({semiLimited.length})
                 </h3>
                 {renderLista(semiLimited)}

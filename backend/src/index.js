@@ -9,6 +9,7 @@ import banlistsRoutes from './routes/banlists.js'
 import rankingRoutes from './routes/ranking.js'
 import tiposTorneioRoutes from './routes/tiposTorneio.js'
 import adminRoutes from './routes/admin.js'
+import statsRoutes from './routes/stats.js'
 
 const app = express()
 
@@ -32,7 +33,7 @@ app.use('/torneios', torneiosRoutes)
 app.use('/participacoes', participacoesRoutes)
 app.use('/banlists', banlistsRoutes)
 app.use('/tipotorneio',tiposTorneioRoutes)
-
+app.use('/stats', statsRoutes)
 app.use('/admin', adminRoutes)
 
 

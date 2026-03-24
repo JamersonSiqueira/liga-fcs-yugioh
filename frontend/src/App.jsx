@@ -8,6 +8,7 @@ import Admin from "./pages/Admin"
 import Banlists from "./pages/Banlists"
 import AdminPanel from "./pages/admin/AdminPanel"
 import JogadorDetalhe from "./pages/JogadorDetalhe"
+import MetaCall from "./pages/MetaCall"
 
 function App() {
   return (
@@ -18,13 +19,12 @@ function App() {
         <Route path="/" element={<Ranking />} />
 
         <Route path="/torneios" element={<Torneios />} />
-
         <Route path="/torneios/:id" element={<TorneioDetalhe />} />
 
         <Route path="/banlists" element={<Banlists />} />
-        
-        <Route path="/ajustesold" element={<Admin />} />
+        {<Route path="/meta" element={<MetaCall />}   />}
 
+        <Route path="/ajustesold" element={<Admin />} />
         <Route path="/ajustes" element={<AdminPanel />} />
 
         <Route path="/jogador/:id" element={<JogadorDetalhe />} />

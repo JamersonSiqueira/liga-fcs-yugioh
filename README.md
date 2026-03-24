@@ -2,7 +2,7 @@
 
 Bem-vindo à **Liga FCS Yu-Gi-Oh**, uma plataforma completa para gerenciamento de torneios, ranking de jogadores e análise competitiva para entusiastas do jogo Yu-Gi-Oh!
 
-Este projeto foi desenvolvido para demonstrar habilidades em desenvolvimento **full-stack moderno**, incluindo frontend, backend e integração com APIs externas.
+Este projeto foi desenvolvido para demonstrar habilidades em desenvolvimento **full-stack moderno**, incluindo frontend, backend e modelagem de dados voltada para cenários reais competitivos.
 
 ---
 
@@ -15,8 +15,38 @@ A plataforma permite:
 - Gerar ranking automaticamente
 - Trabalhar com diferentes tipos de torneio
 - Visualizar banlists oficiais atualizadas
+- Analisar o **metagame competitivo (Meta Call)**
 
-💡 **Diferencial:** Sistema completo online com backend e frontend integrados.
+💡 **Diferencial:** Sistema completo com visão competitiva real, incluindo **tier list automática baseada em dados**.
+
+---
+
+## 🤖 Desenvolvimento com IA (Vibe Coding)
+
+Este projeto foi desenvolvido **100% com auxílio de Inteligência Artificial**, utilizando uma abordagem conhecida como **Vibe Coding**.
+
+### 🧠 Como funciona:
+
+- A IA foi utilizada para:
+  - Geração de código (frontend e backend)
+  - Estruturação de componentes
+  - Sugestões de arquitetura
+  - Criação de queries e regras de negócio
+
+- O desenvolvimento foi guiado por um profissional com experiência em:
+  - **QA (Quality Assurance)**
+  - **Desenvolvimento**
+
+### 🎯 Papel do desenvolvedor:
+
+- Definição de regras de negócio
+- Validação de cenários reais
+- Identificação e correção de bugs
+- Testes funcionais e lógicos
+- Refinamento da experiência do usuário
+- Garantia de consistência dos dados
+
+💡 Em vez de apenas gerar código, a IA foi utilizada como uma **ferramenta de aceleração**, enquanto o controle de qualidade, lógica e direção do sistema foram conduzidos manualmente.
 
 ---
 
@@ -46,7 +76,8 @@ A plataforma permite:
 - Filtros por:
   - Ano
   - Tipo
-- Visualização de classificação
+  - Banlist
+- Visualização de classificação automática
 
 ---
 
@@ -56,21 +87,23 @@ A plataforma permite:
 - Remover participação
 - Controle de duplicidade por jogador/torneio
 - Registro de:
-  - Deck
-  - Vitórias
-  - Derrotas
+  - Deck utilizado
+  - Vitórias / Derrotas
   - Pontuação final
+  - Colocação manual (opcional)
+
+💡 Caso a colocação manual não seja informada, o sistema calcula automaticamente via ranking.
 
 ---
 
 ### 📊 Ranking
 - Ranking geral automático
-- Baseado em regras de tipo de torneio
+- Baseado em regras do tipo de torneio
 - Estatísticas:
   - Pontos
   - Vitórias
   - Derrotas
-  - Aproveitamento
+  - Aproveitamento (winrate)
 
 ---
 
@@ -82,15 +115,15 @@ A plataforma permite:
 | FIXO | Pontuação manual |
 | SEM_RANKING | Não entra no ranking |
 
-💡 Torneios como OTS Konami entram como **SEM_RANKING**.
+💡 Torneios como OTS Konami entram como **SEM_RANKING**, mas ainda contam para estatísticas e metagame.
 
 ---
 
 ## 📜 Banlists
 
 - Criar e listar banlists
-- Ativar apenas uma por vez
-- Integração com API externa para exibição da banlist atual
+- Apenas uma pode estar ativa
+- Vinculação automática ao criar torneios
 
 Exibe:
 - Nome da carta
@@ -99,39 +132,20 @@ Exibe:
 
 ---
 
-## 🖥️ Admin Panel
+## 📈 Meta Call (Análise de Metagame)
 
-Interface administrativa com:
+O sistema possui uma página dedicada ao **Meta Call**, responsável por analisar o desempenho dos decks.
 
-- Gerenciamento completo:
-  - Jogadores
-  - Torneios
-  - Participações
-  - Banlists
-- Navegação por abas
-- Acesso protegido por chave
+### 🔍 O que é exibido:
 
----
-
-## 🔐 Segurança
-
-- Rotas protegidas por middleware
-- Validação de dados no backend
-- Controle de duplicidade
-- Validação de inputs no frontend
+- Popularidade dos decks (gráfico)
+- Winrate (%)
+- Quantidade de jogadores únicos
+- Tops e títulos
+- Lista completa de resultados por deck
 
 ---
 
-## 📡 Integrações
+### 🧠 Cálculo da Tier List
 
-- API externa de banlist de Yu-Gi-Oh
-
----
-
-## 🛠️ Como rodar localmente
-
-### Backend
-
-```bash
-npm install
-npm start
+Os decks são classificados automaticamente com base em um **score ponderado**:

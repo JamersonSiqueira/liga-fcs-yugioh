@@ -287,7 +287,7 @@ function AdminParticipacoesManager() {
                 <td>{p.vitorias}</td>
                 <td>{p.derrotas}</td>
                 <td>{p.pontuacao_final}</td>
-                <td>{p.colocacao_manual || "-"}</td>
+                <td>{p.colocacao || "-"}</td>
 
                 <td className="flex gap-2">
                   <button
