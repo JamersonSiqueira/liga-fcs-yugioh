@@ -29,4 +29,26 @@ router.get('/status', adminMiddleware, (req, res) => {
   })
 })
 
+/*
+========================
+POST - login admin
+========================
+*/
+router.post('/login', (req, res) => {
+  const { senha } = req.body
+
+  if (!senha) {
+    return res.status(400).json({ error: "Senha obrigatória" })
+  }
+
+  if (senha !== process.env.ADMIN_SECRET) {
+    return res.status(401).json({ error: "Senha inválida" })
+  }
+
+  res.json({
+    status: "ok",
+    message: "Login autorizado"
+  })
+})
+
 export default router
