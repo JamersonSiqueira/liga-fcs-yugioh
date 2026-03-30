@@ -10,6 +10,9 @@ function AdminTorneiosManager() {
   const [tipo, setTipo] = useState("")
   const [data, setData] = useState("")
 
+  const [temTopCut, setTemTopCut] = useState(false)
+  const [topCut, setTopCut] = useState("")
+
   const [editandoId, setEditandoId] = useState(null)
 
   // =========================
@@ -45,6 +48,8 @@ function AdminTorneiosManager() {
     setNome("")
     setTipo("")
     setData("")
+    setTemTopCut(false)
+    setTopCut("")
     setEditandoId(null)
   }
 
@@ -58,10 +63,17 @@ function AdminTorneiosManager() {
       return
     }
 
+    if (!data) {
+      alert("Data é obrigatória")
+      return
+    }
+
     const body = {
       nome,
       tipo_id: tipo || null,
-      data_inicio: data || null
+      data_inicio: data,
+      tem_top_cut: temTopCut,
+      top_cut: temTopCut ? Number(topCut) || null : null
     }
 
     let res
@@ -88,7 +100,6 @@ function AdminTorneiosManager() {
 
     limparFormulario()
 
-    // reload
     const reload = await fetchAdmin("/torneios")
 
     if (reload && reload.ok) {
@@ -105,6 +116,8 @@ function AdminTorneiosManager() {
     setNome(t.nome)
     setTipo(t.tipo_id || "")
     setData(t.data_inicio?.slice(0, 10) || "")
+    setTemTopCut(t.tem_top_cut || false)
+    setTopCut(t.top_cut || "")
   }
 
   // =========================
@@ -125,7 +138,6 @@ function AdminTorneiosManager() {
       return
     }
 
-    // reload
     const reload = await fetchAdmin("/torneios")
 
     if (reload && reload.ok) {
@@ -176,6 +188,26 @@ function AdminTorneiosManager() {
           className="bg-slate-800 border border-slate-700 rounded p-2 text-white"
         />
 
+        {/* 🔥 TOP CUT */}
+        <label className="flex items-center gap-2 text-sm text-slate-300">
+          <input
+            type="checkbox"
+            checked={temTopCut}
+            onChange={(e) => setTemTopCut(e.target.checked)}
+          />
+          Possui Top Cut
+        </label>
+
+        {temTopCut && (
+          <input
+            type="number"
+            placeholder="Top Cut (ex: 4, 8)"
+            value={topCut}
+            onChange={(e) => setTopCut(e.target.value)}
+            className="bg-slate-800 border border-slate-700 rounded p-2 text-white"
+          />
+        )}
+
         <div className="flex gap-2">
 
           <button
@@ -207,6 +239,7 @@ function AdminTorneiosManager() {
               <th className="py-2">Nome</th>
               <th>Tipo</th>
               <th>Data</th>
+              <th>Top Cut</th>
               <th></th>
             </tr>
           </thead>
@@ -220,6 +253,7 @@ function AdminTorneiosManager() {
                 <td className="py-2">{t.nome}</td>
                 <td>{t.tipo_torneio}</td>
                 <td>{t.data_inicio?.slice(0, 10)}</td>
+                <td>{t.tem_top_cut ? `Top ${t.top_cut}` : "-"}</td>
 
                 <td className="flex gap-2">
 

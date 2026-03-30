@@ -195,16 +195,16 @@ router.put('/:id', adminMiddleware, async (req, res) => {
     const ano = new Date(data_inicio).getFullYear()
 
     const result = await pool.query(`
-      update torneio
-      set nome = $1,
-          tipo_id = $2,
-          data_inicio = $3,
-          ano = $4,
-          tem_top_cut = $5,
-          top_cut = $6
-      where id = $7
-      returning *
-    `, [nome, tipo_id, data_inicio, ano, id])
+  update torneio
+  set nome = $1,
+      tipo_id = $2,
+      data_inicio = $3,
+      ano = $4,
+      tem_top_cut = $5,
+      top_cut = $6
+  where id = $7
+  returning *
+`, [ nome, tipo_id, data_inicio, ano, tem_top_cut || false, top_cut || null, id])
 
     res.json(result.rows[0])
 
