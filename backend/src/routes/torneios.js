@@ -17,19 +17,14 @@ router.post('/', adminMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'data_inicio é obrigatória' })
     }
 
-    // Derivar ano automaticamente da data_inicio
     const ano = new Date(data_inicio).getFullYear()
 
     if (!ano || isNaN(ano)) {
       return res.status(400).json({ error: 'data_inicio inválida' })
     }
 
-    // 1️⃣ Buscar banlist ativa
     const banlistResult = await pool.query(`
-      select id
-      from banlist
-      where ativa = true
-      limit 1
+      select id from banlist where ativa = true limit 1
     `)
 
     if (banlistResult.rows.length === 0) {
@@ -40,7 +35,6 @@ router.post('/', adminMiddleware, async (req, res) => {
 
     const banlist_id = banlistResult.rows[0].id
 
-    // 2️⃣ Criar torneio já vinculado à banlist ativa
     const result = await pool.query(
       `insert into torneio (nome, tipo_id, data_inicio, ano, banlist_id, tem_top_cut, top_cut)
       values ($1, $2, $3, $4, $5, $6, $7)
@@ -57,19 +51,69 @@ router.post('/', adminMiddleware, async (req, res) => {
 })
 
 
+// 🔥 NOVO: PRÓXIMO TORNEIO (usado no footer)
+router.get('/next', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      select
+        t.id,
+        t.nome,
+        t.data_inicio,
+        t.top_cut,
+        tt.nome as tipo_nome
+      from torneio t
+      left join tipo_torneio tt on tt.id = t.tipo_id
+      where t.data_inicio >= current_date
+      order by t.data_inicio asc
+      limit 1
+    `)
+
+    if (result.rows.length === 0) {
+      return res.json(null)
+    }
+
+    res.json(result.rows[0])
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: error.message })
+  }
+})
+
+
+// 🔥 NOVO: LISTA DE FUTUROS (pra evolução)
+router.get('/upcoming', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      select
+        t.*,
+        tt.nome as tipo_nome
+      from torneio t
+      left join tipo_torneio tt on tt.id = t.tipo_id
+      where t.data_inicio >= current_date
+      order by t.data_inicio asc
+    `)
+
+    res.json(result.rows)
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: error.message })
+  }
+})
+
+
 // GET - classificação de um torneio
 router.get('/:id/classificacao', async (req, res) => {
   const { id } = req.params
 
   try {
-
     const result = await pool.query(`
       select
         p.id,
         t.nome as torneio_nome,
         t.tem_top_cut,
         t.top_cut,
-
         j.id as jogador_id,
         j.nickname,
         p.deck,
@@ -98,7 +142,6 @@ router.get('/:id/classificacao', async (req, res) => {
       join jogador j on j.id = p.jogador_id
       join torneio t on t.id = p.torneio_id
       join tipo_torneio tt on tt.id = t.tipo_id
-
       where p.torneio_id = $1
     `, [id])
 
@@ -111,13 +154,10 @@ router.get('/:id/classificacao', async (req, res) => {
 })
 
 
-/*
-========================
-GET - listar torneios (com filtros)
-========================
-*/
+// GET - listar torneios (com controle de futuro)
 router.get('/', async (req, res) => {
-  const { ano, tipo_id, banlist_id } = req.query
+  const { ano, tipo_id, banlist_id, includeFuture } = req.query
+
   try {
     let query = `
       select
@@ -138,28 +178,28 @@ router.get('/', async (req, res) => {
     const conditions = []
     const values = []
 
-    // 🔹 Filtro por ano
+    // 🔥 REGRA PRINCIPAL
+    if (includeFuture !== 'true') {
+      conditions.push(`t.data_inicio < CURRENT_DATE`)
+    }
+
     if (ano) {
       values.push(Number(ano))
       conditions.push(`t.ano = $${values.length}`)
     }
 
-    // 🔹 Filtro por tipo
     if (tipo_id) {
       if (!isUUID(tipo_id)) {
         return res.status(400).json({ error: 'tipo_id inválido' })
       }
-
       values.push(tipo_id)
       conditions.push(`t.tipo_id = $${values.length}`)
     }
 
-    // 🔹 Filtro por banlist
     if (banlist_id) {
       if (!isUUID(banlist_id)) {
         return res.status(400).json({ error: 'banlist_id inválido' })
       }
-
       values.push(banlist_id)
       conditions.push(`t.banlist_id = $${values.length}`)
     }
@@ -180,69 +220,48 @@ router.get('/', async (req, res) => {
   }
 })
 
-/*
-========================
-PUT - editar torneio
-========================
-*/
-router.put('/:id', adminMiddleware, async (req, res) => {
 
+// PUT
+router.put('/:id', adminMiddleware, async (req, res) => {
   const { id } = req.params
   const { nome, tipo_id, data_inicio, tem_top_cut, top_cut } = req.body
 
   try {
-
     const ano = new Date(data_inicio).getFullYear()
 
     const result = await pool.query(`
-  update torneio
-  set nome = $1,
-      tipo_id = $2,
-      data_inicio = $3,
-      ano = $4,
-      tem_top_cut = $5,
-      top_cut = $6
-  where id = $7
-  returning *
-`, [ nome, tipo_id, data_inicio, ano, tem_top_cut || false, top_cut || null, id])
+      update torneio
+      set nome = $1,
+          tipo_id = $2,
+          data_inicio = $3,
+          ano = $4,
+          tem_top_cut = $5,
+          top_cut = $6
+      where id = $7
+      returning *
+    `, [nome, tipo_id, data_inicio, ano, tem_top_cut || false, top_cut || null, id])
 
     res.json(result.rows[0])
 
   } catch (error) {
-
     console.log(error)
     res.status(500).json({ error: error.message })
-
   }
-
 })
 
-/*
-========================
-DELETE - remover torneio
-========================
-*/
-router.delete('/:id', adminMiddleware, async (req, res) => {
 
+// DELETE
+router.delete('/:id', adminMiddleware, async (req, res) => {
   const { id } = req.params
 
   try {
-
-    await pool.query(`
-      delete from torneio
-      where id = $1
-    `, [id])
-
+    await pool.query(`delete from torneio where id = $1`, [id])
     res.json({ message: "Torneio removido com sucesso" })
 
   } catch (error) {
-
     console.log(error)
     res.status(500).json({ error: error.message })
-
   }
-
 })
-
 
 export default router

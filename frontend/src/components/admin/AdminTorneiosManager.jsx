@@ -22,7 +22,7 @@ function AdminTorneiosManager() {
 
     async function load() {
 
-      const resTorneios = await fetchAdmin("/torneios")
+      const resTorneios = await fetchAdmin("/torneios?includeFuture=true")
       const resTipos = await fetchAdmin("/tipotorneio")
 
       if (resTorneios && resTorneios.ok) {
@@ -100,7 +100,7 @@ function AdminTorneiosManager() {
 
     limparFormulario()
 
-    const reload = await fetchAdmin("/torneios")
+    const reload = await fetchAdmin("/torneios?includeFuture=true")
 
     if (reload && reload.ok) {
       const data = await reload.json()
@@ -138,7 +138,7 @@ function AdminTorneiosManager() {
       return
     }
 
-    const reload = await fetchAdmin("/torneios")
+    const reload = await fetchAdmin("/torneios?includeFuture=true")
 
     if (reload && reload.ok) {
       const data = await reload.json()
