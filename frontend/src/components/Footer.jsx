@@ -18,7 +18,81 @@ export default function Footer() {
 
   return (
     <footer className="bg-slate-900 text-slate-300 mt-10 border-t border-slate-800">
-      <div className="max-w-6xl mx-auto px-4 py-6 grid md:grid-cols-3 gap-6 items-center">
+
+      {/* ========================= */}
+      {/* 📱 MOBILE */}
+      {/* ========================= */}
+      <div className="md:hidden px-4 py-6 flex flex-col gap-6">
+
+        {/* CTA */}
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-semibold">
+            Quer jogar conosco?
+          </p>
+          <p className="text-xs text-slate-400">
+            Entre na comunidade
+          </p>
+
+          <a
+            href="https://chat.whatsapp.com/DMh0KZdn2FI4dsCOYVXxNQ"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white text-sm transition w-fit"
+          >
+            Entrar no WhatsApp
+          </a>
+        </div>
+
+        {/* Próximos torneios */}
+        <div>
+          <p className="text-sm font-semibold mb-2">
+            Próximos Torneios
+          </p>
+
+          {torneios.length > 0 ? (
+            torneios.slice(0, 3).map(t => (
+              <div key={t.id} className="text-xs">
+                <span className="font-bold">
+                  {formatDate(t.data_inicio)}
+                </span>{" "}
+                - {t.nome}
+              </div>
+            ))
+          ) : (
+            <p className="text-xs text-slate-500">
+              Nenhum torneio agendado
+            </p>
+          )}
+        </div>
+
+        {/* Identidade */}
+        <div className="flex flex-col gap-2">
+          <img src={logofcs} alt="FCS Logo" className="w-20" />
+
+          <p className="text-sm leading-tight">
+            <strong>FCS - Feira Championship Series</strong><br />
+            Desde 2015 sendo a mais tradicional da Bahia
+          </p>
+
+          <p className="text-xs text-slate-400">
+            12 anos de ligas anuais • Comunidade ativa há 14 anos
+          </p>
+        </div>
+
+        {/* Parceiro */}
+        <div className="flex flex-col gap-1">
+          <img src={livraria} alt="OTS Parceira" className="w-40" />
+          <p className="text-xs text-slate-400">
+            Loja oficial / OTS parceira
+          </p>
+        </div>
+
+      </div>
+
+      {/* ========================= */}
+      {/* 💻 DESKTOP (VOLTA AO PERFEITO) */}
+      {/* ========================= */}
+      <div className="hidden md:grid max-w-6xl mx-auto px-4 py-6 grid-cols-3 gap-6 items-center">
 
         {/* IDENTIDADE */}
         <div className="flex flex-col gap-2">
@@ -34,7 +108,7 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* PARCEIRO + PRÓXIMOS */}
+        {/* CENTRO */}
         <div className="flex flex-col items-center gap-4 text-center">
 
           <div className="flex flex-col items-center gap-1">
@@ -44,8 +118,8 @@ export default function Footer() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-semibold">
+          <div>
+            <p className="text-sm font-semibold mb-2">
               Próximos Torneios
             </p>
 
@@ -67,9 +141,9 @@ export default function Footer() {
 
         </div>
 
-        {/* CONTATO */}
+        {/* CTA */}
         <div className="flex flex-col items-end gap-2 text-right">
-            <p className="text-sm font-semibold">
+          <p className="text-sm font-semibold">
             Quer jogar conosco?
           </p>
           <p className="text-sm font-semibold">
@@ -84,20 +158,23 @@ export default function Footer() {
           >
             Entrar no WhatsApp
           </a>
-
         </div>
+
       </div>
 
-      <div className="text-center text-xs text-slate-500 py-2 border-t border-slate-800">
-        © {new Date().getFullYear()} FCS • v1.3 - Miscellaneousaurus
-                  <p><a
+      {/* BASE */}
+      <div className="text-center text-xs text-slate-500 py-3 border-t border-slate-800">
+        © {new Date().getFullYear()} FCS • v1.4 - Petiteranodon
+        <p>
+          <a
             href="https://liga-fcs-yugioh.vercel.app/"
-            className="text-xs text-slate-500 hover:text-slate-300 transition"
+            className="hover:text-slate-300 transition"
           >
-              Desenvolvido por Jamerson "Son" Siqueira
+            Desenvolvido por Jamerson "Son" Siqueira
           </a>
-          </p>
+        </p>
       </div>
+
     </footer>
   )
 }

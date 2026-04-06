@@ -157,10 +157,20 @@ router.get('/:id/detalhes', async (req, res) => {
 
         count(*) filter (where tt.modelo_codigo = 'SEM_RANKING') as participacoes_fora,
 
-        -- 🔹 GERAL (🔥 CORRIGIDO COM COALESCE)
+        -- 🔹 GERAL
         coalesce(sum(p.vitorias), 0) as vitorias_total,
         coalesce(sum(p.derrotas), 0) as derrotas_total,
-        coalesce(sum(p.empates), 0) as empates_total
+        coalesce(sum(p.empates), 0) as empates_total,
+
+        -- 🏆 TITULOS
+        count(*) filter (where p.colocacao_manual = 1) as titulos,
+
+        -- 🎯 TOPS
+        count(*) filter (
+          where t.tem_top_cut = true
+          and p.colocacao_manual is not null
+          and p.colocacao_manual <= t.top_cut
+        ) as tops
 
       from jogador j
       left join participacao_torneio p on p.jogador_id = j.id
@@ -185,9 +195,23 @@ router.get('/:id/detalhes', async (req, res) => {
       order by vezes_usado desc
     `, [id])
 
+    // 🔥 NOVO: últimos resultados
+    const ultimosResultados = await pool.query(`
+        select
+          t.data_inicio,
+          p.colocacao_manual
+        from participacao_torneio p
+        join torneio t on t.id = p.torneio_id
+        where p.jogador_id = $1
+          and p.colocacao_manual is not null
+        order by t.data_inicio desc
+        limit 10
+    `, [id])
+
     res.json({
       jogador: stats.rows[0] || null,
-      decks: decks.rows
+      decks: decks.rows,
+      ultimos_resultados: ultimosResultados.rows
     })
 
   } catch (error) {

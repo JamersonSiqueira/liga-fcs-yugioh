@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
         total_vitorias desc,
         aproveitamento desc,
         total_derrotas asc,
+        media_colocacao asc nulls last,
         participacoes desc;
     `)
 
