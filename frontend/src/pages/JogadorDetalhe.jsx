@@ -290,6 +290,19 @@ function JogadorDetalhe() {
               {j.participacoes_liga || 0}
             </p>
           </div>
+          <div className="bg-slate-900 border border-yellow-500/30 rounded-lg p-4">
+            <p className="text-sm text-slate-400">🏆 Títulos</p>
+            <p className="text-2xl font-bold text-yellow-400">
+              {j.titulos_liga || 0}
+            </p>
+          </div>
+
+          <div className="bg-slate-900 border border-sky-500/30 rounded-lg p-4">
+            <p className="text-sm text-slate-400">🎯 Tops</p>
+            <p className="text-2xl font-bold text-sky-400">
+              {j.tops_liga || 0}
+            </p>
+          </div>
 
         </div>
       </div>
@@ -330,6 +343,19 @@ function JogadorDetalhe() {
             <p className="text-sm text-slate-400">Participações</p>
             <p className="text-2xl font-bold text-white">
               {j.participacoes_fora || 0}
+            </p>
+          </div>
+          <div className="bg-slate-900 border border-yellow-500/30 rounded-lg p-4">
+            <p className="text-sm text-slate-400">🏆 Títulos</p>
+            <p className="text-2xl font-bold text-yellow-400">
+              {j.titulos_fora || 0}
+            </p>
+          </div>
+
+          <div className="bg-slate-900 border border-sky-500/30 rounded-lg p-4">
+            <p className="text-sm text-slate-400">🎯 Tops</p>
+            <p className="text-2xl font-bold text-sky-400">
+              {j.tops_fora || 0}
             </p>
           </div>
 

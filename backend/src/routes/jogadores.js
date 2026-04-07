@@ -4,15 +4,8 @@ import { adminMiddleware } from '../middleware/admin.js'
 
 const router = express.Router()
 
-/*
-========================
-GET - listar jogadores
-========================
-*/
 router.get('/', async (req, res) => {
-
   try {
-
     const result = await pool.query(`
       select
         id,
@@ -25,25 +18,15 @@ router.get('/', async (req, res) => {
     res.json(result.rows)
 
   } catch (error) {
-
     console.log(error)
     res.status(500).json({ error: error.message })
-
   }
-
 })
 
-/*
-========================
-POST - criar jogador
-========================
-*/
 router.post('/', adminMiddleware, async (req, res) => {
-
   const { nickname, nome } = req.body
 
   try {
-
     const result = await pool.query(
       `insert into jogador (nickname, nome)
        values ($1, $2)
@@ -54,26 +37,16 @@ router.post('/', adminMiddleware, async (req, res) => {
     res.status(201).json(result.rows[0])
 
   } catch (error) {
-
     console.log(error)
     res.status(500).json({ error: error.message })
-
   }
-
 })
 
-/*
-========================
-PUT - editar jogador
-========================
-*/
 router.put('/:id', adminMiddleware, async (req, res) => {
-
   const { id } = req.params
   const { nickname, nome } = req.body
 
   try {
-
     const result = await pool.query(`
       update jogador
       set nickname = $1,
@@ -85,25 +58,15 @@ router.put('/:id', adminMiddleware, async (req, res) => {
     res.json(result.rows[0])
 
   } catch (error) {
-
     console.log(error)
     res.status(500).json({ error: error.message })
-
   }
-
 })
 
-/*
-========================
-DELETE - remover jogador
-========================
-*/
 router.delete('/:id', adminMiddleware, async (req, res) => {
-
   const { id } = req.params
 
   try {
-
     await pool.query(`
       delete from jogador
       where id = $1
@@ -112,19 +75,11 @@ router.delete('/:id', adminMiddleware, async (req, res) => {
     res.json({ message: "Jogador removido com sucesso" })
 
   } catch (error) {
-
     console.log(error)
     res.status(500).json({ error: error.message })
-
   }
-
 })
 
-/*
-========================
-GET - detalhes do jogador
-========================
-*/
 router.get('/:id/detalhes', async (req, res) => {
   const { id } = req.params
 
@@ -146,9 +101,22 @@ router.get('/:id/detalhes', async (req, res) => {
             when tt.modelo_codigo = 'FIXO' then coalesce(p.pontuacao_final, 0)
             else 0
           end
-        ) as pontos_liga,
+        ) filter (where tt.modelo_codigo <> 'SEM_RANKING') as pontos_liga,
 
         count(*) filter (where tt.modelo_codigo <> 'SEM_RANKING') as participacoes_liga,
+
+        -- 🏆 TITULOS LIGA
+        count(*) filter (
+          where tt.modelo_codigo <> 'SEM_RANKING'
+          and p.colocacao_manual = 1
+        ) as titulos_liga,
+
+        -- 🎯 TOPS LIGA
+        count(*) filter (
+          where tt.modelo_codigo <> 'SEM_RANKING'
+          and p.colocacao_manual is not null
+          and p.colocacao_manual <= 4
+        ) as tops_liga,
 
         -- 🔹 FORA DA LIGA
         sum(p.vitorias) filter (where tt.modelo_codigo = 'SEM_RANKING') as vitorias_fora,
@@ -157,19 +125,31 @@ router.get('/:id/detalhes', async (req, res) => {
 
         count(*) filter (where tt.modelo_codigo = 'SEM_RANKING') as participacoes_fora,
 
+        -- 🏆 TITULOS FORA
+        count(*) filter (
+          where tt.modelo_codigo = 'SEM_RANKING'
+          and p.colocacao_manual = 1
+        ) as titulos_fora,
+
+        -- 🎯 TOPS FORA
+        count(*) filter (
+          where tt.modelo_codigo = 'SEM_RANKING'
+          and p.colocacao_manual is not null
+          and p.colocacao_manual <= 4
+        ) as tops_fora,
+
         -- 🔹 GERAL
         coalesce(sum(p.vitorias), 0) as vitorias_total,
         coalesce(sum(p.derrotas), 0) as derrotas_total,
         coalesce(sum(p.empates), 0) as empates_total,
 
-        -- 🏆 TITULOS
+        -- 🏆 TOTAL
         count(*) filter (where p.colocacao_manual = 1) as titulos,
 
-        -- 🎯 TOPS
+        -- 🎯 TOTAL
         count(*) filter (
-          where t.tem_top_cut = true
-          and p.colocacao_manual is not null
-          and p.colocacao_manual <= t.top_cut
+          where p.colocacao_manual is not null
+          and p.colocacao_manual <= 4
         ) as tops
 
       from jogador j
@@ -195,7 +175,6 @@ router.get('/:id/detalhes', async (req, res) => {
       order by vezes_usado desc
     `, [id])
 
-    // 🔥 NOVO: últimos resultados
     const ultimosResultados = await pool.query(`
         select
           t.data_inicio,
