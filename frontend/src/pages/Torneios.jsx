@@ -16,16 +16,15 @@ function Torneios() {
 
   }, [])
 
-  function formatarData(data) {
+  // 🔥 CORREÇÃO AQUI
+function formatarData(data) {
+  if (!data) return "-"
 
-    const d = new Date(data)
+  const onlyDate = data.split("T")[0]
+  const [year, month, day] = onlyDate.split("-")
 
-    return d.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric"
-    })
-  }
+  return `${day}/${month}/${year}`
+}
 
   // =========================
   // FILTRO
@@ -57,7 +56,6 @@ function Torneios() {
       <p className="text-slate-400 mb-6">
         Histórico de torneios da Feira Championship Series
       </p>
-
 
       {/* FILTROS */}
       <div className="flex flex-wrap gap-2 mb-6">
@@ -97,12 +95,10 @@ function Torneios() {
 
       </div>
 
-
       {/* CONTADOR */}
       <div className="text-sm text-slate-400 mb-4">
         {torneiosFiltrados.length} torneio(s) encontrado(s)
       </div>
-
 
       {/* LISTA */}
       <div className="grid gap-4">
@@ -126,7 +122,6 @@ function Torneios() {
                   {torneio.nome}
                 </div>
 
-                {/* BADGE */}
                 <span className={`text-xs px-2 py-1 rounded-full font-medium
                   ${isSemRanking
                     ? "bg-purple-500/20 text-purple-300"
@@ -138,26 +133,19 @@ function Torneios() {
 
               </div>
 
-
               {/* INFO */}
               <div className="text-sm text-slate-400 mt-2">
-
                 {torneio.tipo_torneio}
-
                 {" • "}
-
                 {formatarData(torneio.data_inicio)}
-
               </div>
-
 
               {/* BANLIST */}
               <div className="text-xs text-slate-500 mt-2">
                 Banlist: {torneio.banlist}
               </div>
 
-
-              {/* TOP CUT BADGE (se existir) */}
+              {/* TOP CUT */}
               <div className="mt-3">
                 {torneio.tem_top_cut ? (
                   <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full">

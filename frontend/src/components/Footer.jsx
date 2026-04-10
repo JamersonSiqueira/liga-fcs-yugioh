@@ -12,9 +12,15 @@ export default function Footer() {
       .catch(() => setTorneios([]))
   }, [])
 
-  function formatDate(date) {
-    return new Date(date).toLocaleDateString("pt-BR")
-  }
+  // 🔥 CORREÇÃO AQUI
+function formatDate(date) {
+  if (!date) return "-"
+
+  const onlyDate = date.split("T")[0]
+  const [year, month, day] = onlyDate.split("-")
+
+  return `${day}/${month}/${year}`
+}
 
   return (
     <footer className="bg-slate-900 text-slate-300 mt-10 border-t border-slate-800">
@@ -90,7 +96,7 @@ export default function Footer() {
       </div>
 
       {/* ========================= */}
-      {/* 💻 DESKTOP (VOLTA AO PERFEITO) */}
+      {/* 💻 DESKTOP */}
       {/* ========================= */}
       <div className="hidden md:grid max-w-6xl mx-auto px-4 py-6 grid-cols-3 gap-6 items-center">
 
