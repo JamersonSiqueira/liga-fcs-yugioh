@@ -121,9 +121,9 @@ router.get('/:id/classificacao', async (req, res) => {
         p.derrotas,
 
         case
-          when tt.modelo_codigo = 'WLD' then (p.vitorias * 3)
+          when tt.modelo_codigo = 'WLD' then (p.vitorias * coalesce(tt.pontuacao_vitoria, 3))
           when tt.modelo_codigo = 'FIXO' then coalesce(p.pontuacao_final, 0)
-          when tt.modelo_codigo = 'SEM_RANKING' then (p.vitorias * 3)
+          when tt.modelo_codigo = 'SEM_RANKING' then (p.vitorias * coalesce(tt.pontuacao_vitoria, 3))
           else 0
         end as pontuacao_final,
 
@@ -131,9 +131,9 @@ router.get('/:id/classificacao', async (req, res) => {
           order by
             p.colocacao_manual asc nulls last,
             case
-              when tt.modelo_codigo = 'WLD' then (p.vitorias * 3)
+              when tt.modelo_codigo = 'WLD' then (p.vitorias * coalesce(tt.pontuacao_vitoria, 3))
               when tt.modelo_codigo = 'FIXO' then coalesce(p.pontuacao_final, 0)
-              when tt.modelo_codigo = 'SEM_RANKING' then (p.vitorias * 3)
+              when tt.modelo_codigo = 'SEM_RANKING' then (p.vitorias * coalesce(tt.pontuacao_vitoria, 3))
               else 0
             end desc
         ) as colocacao

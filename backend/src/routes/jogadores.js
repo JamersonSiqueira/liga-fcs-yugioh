@@ -90,20 +90,25 @@ router.get('/:id/detalhes', async (req, res) => {
         j.id,
         j.nickname,
 
-        -- 🔹 LIGA
-        sum(p.vitorias) filter (where tt.modelo_codigo <> 'SEM_RANKING') as vitorias_liga,
-        sum(p.derrotas) filter (where tt.modelo_codigo <> 'SEM_RANKING') as derrotas_liga,
-        sum(p.empates) filter (where tt.modelo_codigo <> 'SEM_RANKING') as empates_liga,
+        -- 🔹 LIGA (MENSAL)
+        coalesce(sum(p.vitorias) filter (where tt.modelo_codigo <> 'SEM_RANKING' and tt.nome not ilike '%rel%mpago%'), 0) as vitorias_liga,
+        coalesce(sum(p.derrotas) filter (where tt.modelo_codigo <> 'SEM_RANKING' and tt.nome not ilike '%rel%mpago%'), 0) as derrotas_liga,
+        coalesce(sum(p.empates) filter (where tt.modelo_codigo <> 'SEM_RANKING' and tt.nome not ilike '%rel%mpago%'), 0) as empates_liga,
+
+        -- ⚡ RELÂMPAGO
+        coalesce(sum(p.vitorias) filter (where tt.nome ilike '%rel%mpago%'), 0) as vitorias_relampago,
+        coalesce(sum(p.derrotas) filter (where tt.nome ilike '%rel%mpago%'), 0) as derrotas_relampago,
+        count(*) filter (where tt.nome ilike '%rel%mpago%') as participacoes_relampago,
 
         sum(
           case
-            when tt.modelo_codigo = 'WLD' then p.vitorias * 3
+            when tt.modelo_codigo = 'WLD' then p.vitorias * coalesce(tt.pontuacao_vitoria, 3)
             when tt.modelo_codigo = 'FIXO' then coalesce(p.pontuacao_final, 0)
             else 0
           end
         ) filter (where tt.modelo_codigo <> 'SEM_RANKING') as pontos_liga,
 
-        count(*) filter (where tt.modelo_codigo <> 'SEM_RANKING') as participacoes_liga,
+        count(*) filter (where tt.modelo_codigo <> 'SEM_RANKING' and tt.nome not ilike '%rel%mpago%') as participacoes_liga,
 
         -- 🏆 TITULOS LIGA
         count(*) filter (
@@ -119,9 +124,9 @@ router.get('/:id/detalhes', async (req, res) => {
         ) as tops_liga,
 
         -- 🔹 FORA DA LIGA
-        sum(p.vitorias) filter (where tt.modelo_codigo = 'SEM_RANKING') as vitorias_fora,
-        sum(p.derrotas) filter (where tt.modelo_codigo = 'SEM_RANKING') as derrotas_fora,
-        sum(p.empates) filter (where tt.modelo_codigo = 'SEM_RANKING') as empates_fora,
+        coalesce(sum(p.vitorias) filter (where tt.modelo_codigo = 'SEM_RANKING'), 0) as vitorias_fora,
+        coalesce(sum(p.derrotas) filter (where tt.modelo_codigo = 'SEM_RANKING'), 0) as derrotas_fora,
+        coalesce(sum(p.empates) filter (where tt.modelo_codigo = 'SEM_RANKING'), 0) as empates_fora,
 
         count(*) filter (where tt.modelo_codigo = 'SEM_RANKING') as participacoes_fora,
 
