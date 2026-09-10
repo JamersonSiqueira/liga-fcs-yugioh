@@ -59,7 +59,7 @@ function Ranking() {
 
             <ul className="text-sm text-slate-300 space-y-1 mb-4">
               <li>1° Pontuação total</li>
-              <li>2° Vitórias totais</li>
+              <li>2° Vitórias em Torneios Mensais</li>
               <li>3° Aproveitamento (%)</li>
               <li>4° Menor número de derrotas</li>
               <li>5° Performance média em colocações</li>
@@ -85,7 +85,7 @@ function Ranking() {
             </div>
 
             <p className="text-sm text-slate-400 mb-4">
-              Apenas torneios válidos para ranking (mensais e relâmpagos) são considerados.
+              Apenas torneios válidos para ranking são considerados (Torneios Mensais com 3 pts por vitória e Torneios Relâmpago com 2 pts por vitória).
             </p>
 
             <button

@@ -186,12 +186,20 @@ function JogadorDetalhe() {
               {dadosComparado.nickname}
             </div>
 
-            <div className="text-slate-400">Vitórias</div>
-            <div className={getBetter(j.vitorias_total, dadosComparado.vitorias_total)}>
-              {j.vitorias_total || 0}
+            <div className="text-slate-400">Vitórias (Mensal)</div>
+            <div className={getBetter(j.vitorias_liga, dadosComparado.vitorias_liga)}>
+              {j.vitorias_liga || 0}
             </div>
-            <div className={getBetter(dadosComparado.vitorias_total, j.vitorias_total)}>
-              {dadosComparado.vitorias_total || 0}
+            <div className={getBetter(dadosComparado.vitorias_liga, j.vitorias_liga)}>
+              {dadosComparado.vitorias_liga || 0}
+            </div>
+
+            <div className="text-slate-400">Vitórias Relâmpago ⚡</div>
+            <div className={getBetter(j.vitorias_relampago, dadosComparado.vitorias_relampago)}>
+              {j.vitorias_relampago || 0}
+            </div>
+            <div className={getBetter(dadosComparado.vitorias_relampago, j.vitorias_relampago)}>
+              {dadosComparado.vitorias_relampago || 0}
             </div>
 
             <div className="text-slate-400">Derrotas</div>
@@ -250,21 +258,31 @@ function JogadorDetalhe() {
       ========================= */}
       <div className="mb-8 border border-slate-800 rounded-xl p-5 bg-slate-900/50">
 
-        <h2 className="text-xl font-bold mb-4 text-white">
-          Torneios da Liga
+        <h2 className="text-xl font-bold mb-4 text-white flex items-center justify-between">
+          <span>Torneios da Liga</span>
+          <span className="text-xs font-normal text-slate-400 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+            Mensais + Relâmpagos
+          </span>
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
           <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
-            <p className="text-sm text-slate-400">Vitórias</p>
+            <p className="text-sm text-slate-400">Vitórias (Mensal)</p>
             <p className="text-2xl font-bold text-green-400">
               {j.vitorias_liga || 0}
             </p>
           </div>
 
+          <div className="bg-slate-900 border border-amber-500/30 rounded-lg p-4">
+            <p className="text-sm text-amber-400 flex items-center gap-1">⚡ Vitórias Relâmpago</p>
+            <p className="text-2xl font-bold text-amber-400">
+              {j.vitorias_relampago || 0}
+            </p>
+          </div>
+
           <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
-            <p className="text-sm text-slate-400">Derrotas</p>
+            <p className="text-sm text-slate-400">Derrotas (Mensal)</p>
             <p className="text-2xl font-bold text-red-400">
               {j.derrotas_liga || 0}
             </p>
@@ -278,7 +296,7 @@ function JogadorDetalhe() {
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
-            <p className="text-sm text-slate-400">Pontos</p>
+            <p className="text-sm text-slate-400">Pontos Liga</p>
             <p className="text-2xl font-bold text-sky-400">
               {j.pontos_liga || 0}
             </p>
@@ -287,7 +305,7 @@ function JogadorDetalhe() {
           <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
             <p className="text-sm text-slate-400">Participações</p>
             <p className="text-2xl font-bold text-white">
-              {j.participacoes_liga || 0}
+              {(Number(j.participacoes_liga) || 0) + (Number(j.participacoes_relampago) || 0)}
             </p>
           </div>
           <div className="bg-slate-900 border border-yellow-500/30 rounded-lg p-4">

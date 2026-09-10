@@ -28,8 +28,14 @@ function RankingTable({ ranking }) {
     <div className="space-y-2">
 
       {/* 🔥 LEGENDA */}
-      <div className="text-xs text-slate-400 px-2">
-        🏆 títulos • 🥉 top cut
+      <div className="text-xs text-slate-400 px-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span>🏆 títulos</span>
+        <span>•</span>
+        <span>🥉 top cut</span>
+        <span>•</span>
+        <span className="text-slate-300"><strong className="text-white">Vit. Mensal:</strong> 3 pts cada</span>
+        <span>•</span>
+        <span className="text-amber-400"><strong className="text-amber-300">⚡ Vit. Relâmpago:</strong> 2 pts cada</span>
       </div>
 
       <div className="bg-slate-900 rounded-xl border border-slate-800 shadow-lg overflow-hidden">
@@ -42,7 +48,18 @@ function RankingTable({ ranking }) {
               <th className="p-3 text-left">#</th>
               <th className="p-3 text-left">Jogador</th>
               <th className="p-3 text-right">Pts</th>
-              <th className="p-3 text-right">W</th>
+              <th className="p-3 text-right" title="Vitórias em Torneios Mensais (3 pontos cada)">
+                <div className="leading-tight">
+                  <div>Vit. Mensal</div>
+                  <div className="text-[10px] text-slate-400 font-normal">3 pts</div>
+                </div>
+              </th>
+              <th className="p-3 text-right text-amber-400" title="Vitórias em Torneios Relâmpago (2 pontos cada)">
+                <div className="leading-tight">
+                  <div>⚡ Vit. Relâmpago</div>
+                  <div className="text-[10px] text-amber-400/70 font-normal">2 pts</div>
+                </div>
+              </th>
               <th className="p-3 text-right">L</th>
               <th className="p-3 text-right">%</th>
               <th className="p-3 text-right">Média</th>
@@ -91,11 +108,15 @@ function RankingTable({ ranking }) {
                       {player.total_pontos}
                     </td>
 
-                    <td className="p-3 text-right">
+                    <td className="p-3 text-right font-medium text-slate-200">
                       {player.total_vitorias}
                     </td>
 
-                    <td className="p-3 text-right">
+                    <td className="p-3 text-right text-amber-400/90 font-medium">
+                      {player.vitorias_relampago || 0}
+                    </td>
+
+                    <td className="p-3 text-right text-slate-300">
                       {player.total_derrotas}
                     </td>
 
@@ -161,8 +182,13 @@ function RankingTable({ ranking }) {
 
                       </div>
 
-                      <div className="text-xs text-slate-400 mt-1">
-                        {player.total_vitorias}W / {player.total_derrotas}L
+                      <div className="text-xs text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
+                        <span>{player.total_vitorias}W Mensal / {player.total_derrotas}L</span>
+                        {Number(player.vitorias_relampago) > 0 && (
+                          <span className="text-amber-400 font-medium">
+                            • ⚡ {player.vitorias_relampago}W Relâmpago
+                          </span>
+                        )}
                       </div>
 
                     </td>
@@ -172,13 +198,21 @@ function RankingTable({ ranking }) {
                   {isOpen && (
                     <tr className="sm:hidden bg-slate-800/50">
                       <td className="p-3 text-xs text-slate-300 space-y-1">
-                        <div>Aproveitamento: {player.aproveitamento}%</div>
-
-                        <div>
-                          Média de colocações:{" "}
-                          {player.media_colocacao
-                            ? Number(player.media_colocacao).toFixed(1)
-                            : "-"}
+                        <div className="flex justify-between">
+                          <span>Vitórias Mensais (3 pts):</span>
+                          <span className="font-bold text-white">{player.total_vitorias}W</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-amber-400">⚡ Vitórias Relâmpago (2 pts):</span>
+                          <span className="font-bold text-amber-400">{player.vitorias_relampago || 0}W</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Aproveitamento:</span>
+                          <span>{player.aproveitamento}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Média de colocações:</span>
+                          <span>{player.media_colocacao ? Number(player.media_colocacao).toFixed(1) : "-"}</span>
                         </div>
                       </td>
                     </tr>
@@ -188,7 +222,7 @@ function RankingTable({ ranking }) {
                   {position === 8 && (
                     <tr>
                       <td
-                        colSpan="7"
+                        colSpan="8"
                         className="text-center text-xs text-sky-400 py-3 border-t border-sky-800 bg-sky-900/30 tracking-widest"
                       >
                         ───────── CORTE TOP 8 ─────────
