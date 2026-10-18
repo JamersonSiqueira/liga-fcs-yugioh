@@ -93,25 +93,33 @@ PUT - editar participação
 router.put('/:id', adminMiddleware, async (req, res) => {
 
   const { id } = req.params
-  const { vitorias, derrotas, deck, colocacao_manual } = req.body
+  const { jogador_id, vitorias, derrotas, deck, colocacao_manual } = req.body
 
   try {
 
     const result = await pool.query(`
       update participacao_torneio
-      set vitorias = $1,
-          derrotas = $2,
-          deck = $3,
-          colocacao_manual = $4
-      where id = $5
+      set jogador_id = coalesce($1, jogador_id),
+          vitorias = $2,
+          derrotas = $3,
+          deck = $4,
+          colocacao_manual = $5
+      where id = $6
       returning *
-    `, [vitorias, derrotas, deck, colocacao_manual || null, id])
+    `, [jogador_id || null, vitorias, derrotas, deck, colocacao_manual || null, id])
 
     res.json(result.rows[0])
 
   } catch (error) {
 
     console.log(error)
+
+    if (error.code === '23505') {
+      return res.status(409).json({
+        error: "Este jogador já está inscrito neste torneio"
+      })
+    }
+
     res.status(500).json({ error: error.message })
 
   }

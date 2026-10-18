@@ -28,7 +28,7 @@ Mais do que um CRUD, este projeto evoluiu para um **sistema analítico competiti
     - Geral
   - Comparação entre jogadores
   - Streak de performance (🔥 hot streak)
-  - Histórico recente
+  - Histórico completo de torneios com filtros (🏆 Liga vs ⚔️ Off-Liga)
   - Decks utilizados com winrate
 
 ---

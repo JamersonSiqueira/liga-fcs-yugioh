@@ -121,7 +121,7 @@ Com base no Score ordenado decrescente, os decks são agrupados em Tiers:
 ### 🎮 Participações (`/participacoes`)
 - `GET /participacoes`: Lista todas as participações de jogadores em torneios.
 - `POST /participacoes` *(Admin)*: Inscreve um jogador em um torneio com seu deck, V/D/E e colocação manual.
-- `PUT /participacoes/:id` *(Admin)*: Atualiza os dados de uma participação.
+- `PUT /participacoes/:id` *(Admin)*: Atualiza os dados de uma participação (incluindo alteração de `jogador_id` com tratamento de conflito `23505`).
 - `DELETE /participacoes/:id` *(Admin)*: Remove uma participação.
 
 ### 🚫 Banlists (`/banlists`)
@@ -162,6 +162,7 @@ Com base no Score ordenado decrescente, os decks são agrupados em Tiers:
 - **Hot Streak Widget**: Exibe selos dinâmicos (`🔥 ON FIRE - 2 TOPS`, `🔥🔥 HOT STREAK - 3 TOPS`, `🔥🔥🔥 DOMINANDO - 4 TOPS`) baseados no desempenho recente.
 - **Módulo de Comparação X-vs-Y**: Permite selecionar qualquer outro duelista cadastrado e comparar lado a lado Vitórias, Derrotas, Winrate, Pontos da Liga, Títulos e Tops com realce em verde para quem leva vantagem na estatística.
 - **Segmentação por Contexto**: Painéis organizados para Torneios da Liga, Torneios fora da Liga e Geral.
+- **Histórico de Torneios (Liga vs Off-Liga)**: Lista cronológica de todos os eventos disputados com abas de filtro (`Todos`, `🏆 Liga`, `⚔️ Off-Liga`), badges comemorativos (🥇 Campeão, 🎯 Top Cut), deck utilizado, placar V/D/E e pontos somados.
 - **Winrate por Deck**: Lista de decks jogados com o aproveitamento individual.
 
 ### 5. **Banlists (`/banlists`)**
@@ -211,4 +212,4 @@ Se você estiver planejando realizar alterações nesta codebase no futuro, siga
 
 ---
 
-*Documento atualizado e sincronizado com o código-fonte em Agosto de 2026.*
+*Documento atualizado e sincronizado com o código-fonte em Outubro de 2026 (Versão 1.5 - Giant Rex).*

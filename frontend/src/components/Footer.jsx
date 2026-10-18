@@ -170,7 +170,7 @@ function formatDate(date) {
 
       {/* BASE */}
       <div className="text-center text-xs text-slate-500 py-3 border-t border-slate-800">
-        © {new Date().getFullYear()} FCS • v1.4 - Petiteranodon
+        © {new Date().getFullYear()} FCS • v1.5 - Pankratops
         <p>
           <a
             href="https://liga-fcs-yugioh.vercel.app/"

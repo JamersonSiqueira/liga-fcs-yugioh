@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, Link } from "react-router-dom"
 import { API_URL } from "../services/api"
 
 function JogadorDetalhe() {
@@ -8,6 +8,7 @@ function JogadorDetalhe() {
 
   const [dados, setDados] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [filtroTorneios, setFiltroTorneios] = useState("todos")
 
   // 🔥 COMPARAÇÃO
   const [jogadores, setJogadores] = useState([])
@@ -427,6 +428,172 @@ function JogadorDetalhe() {
           </div>
 
         </div>
+      </div>
+
+      {/* =========================
+          🔥 HISTÓRICO DE TORNEIOS (LIGA VS OFF-LIGA)
+      ========================= */}
+      <div className="mb-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              📅 Histórico de Torneios
+            </h2>
+            <p className="text-sm text-slate-400">
+              Desempenho torneio a torneio, divididos entre Liga FCS e Off-Liga
+            </p>
+          </div>
+
+          {/* ABAS DE FILTRO */}
+          <div className="flex gap-2 p-1 bg-slate-900 border border-slate-800 rounded-lg">
+            <button
+              onClick={() => setFiltroTorneios("todos")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+                filtroTorneios === "todos"
+                  ? "bg-sky-600 text-white shadow-sm"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+              }`}
+            >
+              Todos ({(dados.historico_torneios || []).length})
+            </button>
+            <button
+              onClick={() => setFiltroTorneios("liga")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1 ${
+                filtroTorneios === "liga"
+                  ? "bg-amber-500 text-slate-950 font-bold shadow-sm"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+              }`}
+            >
+              🏆 Liga ({(dados.historico_torneios || []).filter(t => t.is_liga).length})
+            </button>
+            <button
+              onClick={() => setFiltroTorneios("off")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1 ${
+                filtroTorneios === "off"
+                  ? "bg-purple-600 text-white shadow-sm"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+              }`}
+            >
+              ⚔️ Off-Liga ({(dados.historico_torneios || []).filter(t => !t.is_liga).length})
+            </button>
+          </div>
+        </div>
+
+        {/* LISTAGEM DE TORNEIOS */}
+        {(() => {
+          const torneiosFiltrados = (dados.historico_torneios || []).filter(t => {
+            if (filtroTorneios === "liga") return t.is_liga
+            if (filtroTorneios === "off") return !t.is_liga
+            return true
+          })
+
+          if (torneiosFiltrados.length === 0) {
+            return (
+              <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center text-slate-400">
+                Nenhum torneio registrado nesta categoria.
+              </div>
+            )
+          }
+
+          return (
+            <div className="grid gap-3">
+              {torneiosFiltrados.map((t, idx) => {
+                const dataFormatada = t.data_inicio
+                  ? new Date(t.data_inicio).toLocaleDateString("pt-BR", { timeZone: "UTC" })
+                  : "-"
+
+                return (
+                  <div
+                    key={t.torneio_id || idx}
+                    className="bg-slate-900 border border-slate-800 hover:border-slate-700 transition rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  >
+                    {/* INFO PRINCIPAL: NOME, DATA E TIPO */}
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        {t.is_liga ? (
+                          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-base">
+                            🏆
+                          </span>
+                        ) : (
+                          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-400 text-base">
+                            ⚔️
+                          </span>
+                        )}
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Link
+                            to={`/torneios/${t.torneio_id}`}
+                            className="font-bold text-white hover:text-sky-400 transition"
+                          >
+                            {t.torneio_nome}
+                          </Link>
+
+                          {t.is_liga ? (
+                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                              {t.tipo_torneio || "Liga FCS"}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                              Off-Liga
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-xs text-slate-400 flex items-center gap-3 mt-1">
+                          <span>📅 {dataFormatada}</span>
+                          {t.deck && (
+                            <span className="text-slate-300 font-medium">
+                              🃏 {t.deck}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* DESEMPENHO: PLACAR, COLOCAÇÃO E PONTOS */}
+                    <div className="flex items-center gap-4 self-end md:self-center">
+                      {/* V / D */}
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-white">
+                          <span className="text-green-400">{t.vitorias}V</span>
+                          <span className="text-slate-500 mx-1">-</span>
+                          <span className="text-red-400">{t.derrotas}D</span>
+                          {Number(t.empates) > 0 && (
+                            <span className="text-yellow-400 ml-1">({t.empates}E)</span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-slate-400">
+                          {t.is_liga ? `+${t.pontos_ganhos || 0} pts` : "Fora da Liga"}
+                        </div>
+                      </div>
+
+                      {/* BADGE DE COLOCAÇÃO */}
+                      <div className="min-w-[95px] text-center">
+                        {t.colocacao_manual === 1 ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-sm">
+                            🥇 Campeão
+                          </span>
+                        ) : t.colocacao_manual && t.colocacao_manual <= 4 ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40">
+                            🎯 Top {t.colocacao_manual}
+                          </span>
+                        ) : t.colocacao_manual ? (
+                          <span className="inline-block text-xs font-medium px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                            {t.colocacao_manual}º Lugar
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-500">-</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })()}
       </div>
 
       {/* =========================

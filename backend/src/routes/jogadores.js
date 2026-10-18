@@ -192,10 +192,36 @@ router.get('/:id/detalhes', async (req, res) => {
         limit 10
     `, [id])
 
+    const historicoTorneios = await pool.query(`
+      select
+        t.id as torneio_id,
+        t.nome as torneio_nome,
+        t.data_inicio,
+        tt.nome as tipo_torneio,
+        tt.modelo_codigo,
+        (tt.modelo_codigo <> 'SEM_RANKING') as is_liga,
+        p.deck,
+        p.vitorias,
+        p.derrotas,
+        coalesce(p.empates, 0) as empates,
+        p.colocacao_manual,
+        case
+          when tt.modelo_codigo = 'WLD' then (p.vitorias * coalesce(tt.pontuacao_vitoria, 3))
+          when tt.modelo_codigo = 'FIXO' then coalesce(p.pontuacao_final, 0)
+          else 0
+        end as pontos_ganhos
+      from participacao_torneio p
+      join torneio t on t.id = p.torneio_id
+      join tipo_torneio tt on tt.id = t.tipo_id
+      where p.jogador_id = $1
+      order by t.data_inicio desc
+    `, [id])
+
     res.json({
       jogador: stats.rows[0] || null,
       decks: decks.rows,
-      ultimos_resultados: ultimosResultados.rows
+      ultimos_resultados: ultimosResultados.rows,
+      historico_torneios: historicoTorneios.rows
     })
 
   } catch (error) {
