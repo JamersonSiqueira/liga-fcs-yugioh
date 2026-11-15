@@ -3,10 +3,12 @@ import { getRanking } from "../services/api"
 import Container from "../components/Container"
 import RankingTable from "../components/RankingTable"
 import Podium from "../components/Podium"
+import Top8Showcase from "../components/Top8Showcase"
 
 function Ranking() {
   const [ranking, setRanking] = useState([])
   const [showHelp, setShowHelp] = useState(false)
+  const [showRegularTable, setShowRegularTable] = useState(true)
 
   useEffect(() => {
     async function fetchData() {
@@ -23,13 +25,13 @@ function Ranking() {
       {/* HEADER */}
       <div className="flex justify-between items-center mb-2">
 
-        <h1 className="text-3xl font-bold text-white">
+        <h1 className="text-3xl font-extrabold text-white tracking-tight">
           Liga FCS Ranking
         </h1>
 
         <button
           onClick={() => setShowHelp(true)}
-          className="text-sky-400 text-sm"
+          className="text-sky-400 text-sm hover:text-sky-300 transition"
         >
           ℹ️ Critérios de desempate
         </button>
@@ -37,11 +39,42 @@ function Ranking() {
       </div>
 
       <p className="text-slate-400 mb-6">
-        Ranking geral dos duelistas da Liga FCS - Feira Championship Series
+        Ranking oficial dos duelistas da Liga FCS - Feira Championship Series
       </p>
 
-      <Podium ranking={ranking} />
-      <RankingTable ranking={ranking} />
+      {/* 🔥 MURAL, RODADAS E FINAIS DO TOP 8 */}
+      <Top8Showcase />
+
+      {/* 📋 TABELA DA TEMPORADA REGULAR (COM TOGGLE) */}
+      <div className="border-t border-slate-800/80 pt-8 mt-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+          <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <span>📋 Classificação da Temporada Regular</span>
+              <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full border border-slate-700">
+                {ranking.length} duelistas
+              </span>
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Pontuação acumulada ao longo de todos os torneios válidos da temporada
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowRegularTable(prev => !prev)}
+            className="text-xs font-semibold px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition"
+          >
+            {showRegularTable ? "▲ Ocultar Classificação Geral" : "▼ Expandir Classificação Geral"}
+          </button>
+        </div>
+
+        {showRegularTable && (
+          <div className="space-y-6 animate-fadeIn">
+            <Podium ranking={ranking} />
+            <RankingTable ranking={ranking} />
+          </div>
+        )}
+      </div>
 
       {/* MODAL HELP */}
       {showHelp && (

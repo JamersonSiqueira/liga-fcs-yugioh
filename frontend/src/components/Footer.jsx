@@ -13,14 +13,14 @@ export default function Footer() {
   }, [])
 
   // 🔥 CORREÇÃO AQUI
-function formatDate(date) {
-  if (!date) return "-"
+  function formatDate(date) {
+    if (!date) return "-"
 
-  const onlyDate = date.split("T")[0]
-  const [year, month, day] = onlyDate.split("-")
+    const onlyDate = date.split("T")[0]
+    const [year, month, day] = onlyDate.split("-")
 
-  return `${day}/${month}/${year}`
-}
+    return `${day}/${month}/${year}`
+  }
 
   return (
     <footer className="bg-slate-900 text-slate-300 mt-10 border-t border-slate-800">
@@ -170,7 +170,7 @@ function formatDate(date) {
 
       {/* BASE */}
       <div className="text-center text-xs text-slate-500 py-3 border-t border-slate-800">
-        © {new Date().getFullYear()} FCS • v1.5 - Pankratops
+        © {new Date().getFullYear()} FCS • v1.6 - Overtex Qoatlus
         <p>
           <a
             href="https://liga-fcs-yugioh.vercel.app/"

@@ -5,6 +5,7 @@ import AdminJogadoresManager from "../../components/admin/AdminJogadoresManager.
 import AdminTorneiosManager from "../../components/admin/AdminTorneiosManager"
 import AdminParticipacoesManager from "../../components/admin/AdminParticipacoesManager"
 import AdminBanlistManager from "../../components/admin/AdminBanlistManager"
+import AdminTop8Manager from "../../components/admin/AdminTop8Manager"
 
 function AdminPanel() {
 
@@ -54,6 +55,10 @@ async function handleLogin() {
   }
 
   function renderConteudo() {
+
+    if (aba === "top8") {
+      return <AdminTop8Manager />
+    }
 
     if (aba === "jogadores") {
       return <AdminJogadoresManager />
@@ -139,6 +144,17 @@ async function handleLogin() {
       </div>
 
       <div className="flex gap-2 flex-wrap">
+
+        <button
+          onClick={() => setAba("top8")}
+          className={`px-4 py-2 rounded font-semibold transition flex items-center gap-1.5 ${
+            aba === "top8"
+              ? "bg-amber-500 text-slate-950 shadow"
+              : "bg-slate-800 text-amber-400 hover:bg-slate-700"
+          }`}
+        >
+          👑 Top 8 Playoffs
+        </button>
 
         <button
           onClick={() => setAba("jogadores")}
