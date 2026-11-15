@@ -53,28 +53,80 @@ Permite que qualquer visitante clique em um duelista e visualize a lista complet
 
 ---
 
-### 2. O Torneio do Top 8 (Playoffs da Liga)
-> **Branch Sugerida:** `feature/top8-showcase`
+### 2. ~~O Torneio do Top 8 (Playoffs da Liga) e Gerenciamento de Fotos~~ ✅ [CONCLUÍDO - Playoffs 2026]
+> **Status:** ✅ Concluído e implementado na branch `feature/top8-highlight`.
 
-#### Formato de Disputa
-1. **Fase de Pontos (Round Robin - 7 Rodadas):**
-   * Os 8 classificados jogam todos contra todos ao longo de 7 rodadas.
-   * Tabela exclusiva com vitórias, derrotas e desempates do Top 8.
-2. **Finais Diretas:**
-   * **Grande Final (🏆):** 1º Colocado da fase de 7 rodadas vs 2º Colocado.
-   * **Disputa de 3º Lugar (🥉):** 3º Colocado vs 4º Colocado.
-3. **Pódio Final:**
-   * Destaque comemorativo para Campeão, Vice e 3º Colocado.
+#### Objetivo Concluído
+Implementação do sistema completo de Playoffs da Liga FCS para a elite dos 8 melhores duelistas da temporada regular, integrando o lançamento de resultados manuais gerados pelo software oficial da Konami (**KCGN**), respeito à regra de tempo e *Double Loss*, mural holográfico, finais diretas, pódio oficial e gerenciador administrativo de fotos dos duelistas com compressão via Canvas no navegador.
 
-#### Upload de Fotos dos Duelistas
-* **Armazenamento:** Utilizar o **Supabase Storage** (bucket público `jogadores`), já que o disco do Render é volátil.
-* **Painel Admin:** Campo de upload na aba de Jogadores que faz o upload do arquivo para o bucket e salva a URL pública no campo `foto_url` da tabela `jogador`.
-* **Fallback:** Caso o duelista não possua foto, exibir card com avatar padrão temático de Yu-Gi-Oh.
+#### 1. Banco de Dados e Storage (Supabase)
+* **Coluna de Foto:** `ALTER TABLE jogador ADD COLUMN IF NOT EXISTS foto_url text;`
+* **Tabela de Configuração:**
+  ```sql
+  CREATE TABLE IF NOT EXISTS top8_config (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    ano int NOT NULL UNIQUE DEFAULT 2026,
+    status varchar(20) NOT NULL DEFAULT 'pendente', -- 'pendente', 'em_andamento', 'concluido'
+    fase_atual varchar(30) DEFAULT 'mural',          -- 'mural', 'rodadas', 'finais', 'finalizado'
+    campeao_id uuid REFERENCES jogador(id),
+    vice_id uuid REFERENCES jogador(id),
+    terceiro_id uuid REFERENCES jogador(id)
+  );
+  ```
+* **Tabela de Confrontos:**
+  ```sql
+  CREATE TABLE IF NOT EXISTS top8_partidas (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    ano int NOT NULL DEFAULT 2026,
+    rodada varchar(30) NOT NULL, -- 'rodada_1' a 'rodada_7', 'final', 'terceiro_lugar'
+    jogador1_id uuid REFERENCES jogador(id) ON DELETE CASCADE,
+    jogador2_id uuid REFERENCES jogador(id) ON DELETE CASCADE,
+    vitorias_j1 int DEFAULT 0,
+    vitorias_j2 int DEFAULT 0,
+    empates int DEFAULT 0,
+    concluida boolean DEFAULT false,
+    created_at timestamp DEFAULT now()
+  );
+  ```
+* **Supabase Storage:** Bucket público `jogadores` para servir avatares em alta performance com persistência garantida.
 
-#### Apresentação Visual no Site
-* **Mural dos 8 Classificados:** Cards estilizados no topo da tela com foto, deck e seed (#1 ao #8).
-* **Quadro de Resultados:** Visual das 7 rodadas e os confrontos finais.
-* **Tabela Regular:** A tabela de pontos do ano fica abaixo do Top 8, colapsada com botão de expandir (*"Ver Classificação da Temporada Regular"*).
+#### 2. Backend (`backend/src/routes/top8.js` e `backend/src/index.js`)
+* **Rotas Disponibilizadas em `/top8`:**
+  * `GET /top8/config`: Status, fase ativa de exibição e dados do pódio com fotos e nicknames.
+  * `PUT /top8/config`: Atualização administrativa de fase (`mural`, `rodadas`, `finais`, `finalizado`) e pódio.
+  * `GET /top8/classificados`: Os 8 primeiros da temporada regular com *Seed #1 a #8*, foto, deck mais frequente, winrate e número de tops.
+  * `GET /top8/partidas`: Confrontos das 7 rodadas e finais, além da tabela calculada dinamicamente.
+  * `POST /top8/partida` e `PUT /top8/partida/:id`: Lançamento e edição dos placares do KCGN.
+  * `DELETE /top8/partida/:id`: Remoção de partidas.
+* **Regra de Tempo Oficial do Yu-Gi-Oh! (KCGN / KDE Tournament Policy):**
+  * Quando o tempo de 50 minutos encerra sem um vencedor de 2 games (ex: `1x0` ou `1x1` no tempo), a partida é computada como **Double Loss (Dupla Derrota)**.
+  * Ambos os duelistas recebem **+1 Derrota**, **0 pontos** e contabilizam na coluna `DL`.
+* **Uploads e Payload:** Configurado `express.json({ limit: '15mb' })` no Express para receber uploads com folga.
+
+#### 3. Gerenciador de Fotos dos Duelistas (`AdminJogadoresManager.jsx`)
+* **Filtros de Exibição:** `[ Todos ]`, `[ 📸 Com Foto ]` e `[ 👤 Sem Foto ]` com busca textual em tempo real.
+* **Compressão no Navegador (HTML5 Canvas):** Imagens redimensionadas para max 450px e convertidas para JPEG 0.85 (~35KB), gerando redução de mais de 97% de peso antes de enviar ao backend/Supabase.
+* **Modal de Upload com Métricas Reais:** Exibe o tamanho original, o tamanho comprimido e a porcentagem exata de economia antes de confirmar.
+
+#### 4. Painel de Controle do Top 8 (`AdminTop8Manager.jsx`)
+* **Nova Aba no Painel Admin (`/ajustes`):** Gestão visual dedicada aos playoffs.
+* **Lançamento Manual do KCGN:** Lançador rodada por rodada (Rodadas 1 a 7, Grande Final e Disputa de 3º).
+* **Alerta Inteligente de Double Loss:** Detecta placares de empate ou tempo e avisa o organizador que ambos receberão derrota.
+* **Controle de Exibição:** Alterne entre Mural, 7 Rodadas, Finais e Pódio Oficial com um clique.
+
+#### 5. Apresentação Pública de Elite (`Top8Showcase.jsx` e `Ranking.jsx`)
+* **Mural Holográfico dos 8 Classificados:** Cards estilo eSports com bordas gradiente anime, avatar/foto, deck, seed e estatísticas.
+* **Tabela Responsiva das 7 Rodadas:** 
+  * Totalmente otimizada para mobile com `min-w-[620px]` e scroll suave sem esmagar colunas.
+  * Coluna padronizada **`DL` (Double Loss)** com largura fixa (`w-12 text-center` e container `w-6 h-5`), eliminando desvios e ziguezagues visuais.
+  * Dica visual de navegação horizontal no smartphone.
+* **Cards de Confronto que Nunca Quebram:**
+  * Placar central com `shrink-0 whitespace-nowrap min-w-[56px] tabular-nums` que impede quebras de linha verticais no mobile.
+  * Truncamento inteligente de nomes compridos (`truncate min-w-0`).
+  * Badge destacada para partidas que terminaram em Double Loss por tempo.
+* **Finais Decisivas e Pódio:** Grande Final dourada (1º x 2º), Disputa de 3º Lugar e Pódio com troféu, coroa e animações sutis.
+* **Privacidade dos Critérios Técnicos:** Nenhuma menção a KCGN ou siglas internas visível para os duelistas; apenas a ordem oficial limpa e elegante.
+* **Temporada Regular Retrátil:** A classificação da fase de grupos fica logo abaixo com botão expansível/colapsável.
 
 ---
 

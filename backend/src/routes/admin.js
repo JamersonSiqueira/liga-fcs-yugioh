@@ -51,4 +51,58 @@ router.post('/login', (req, res) => {
   })
 })
 
+/*
+========================
+POST - Upload de Foto de Jogador
+========================
+*/
+router.post('/upload-foto', adminMiddleware, async (req, res) => {
+  const { imagemBase64, filename } = req.body
+
+  if (!imagemBase64) {
+    return res.status(400).json({ error: "Nenhuma imagem fornecida" })
+  }
+
+  try {
+    const ext = filename ? filename.split('.').pop() : 'jpg'
+    const cleanBase64 = imagemBase64.replace(/^data:image\/\w+;base64,/, '')
+    const buffer = Buffer.from(cleanBase64, 'base64')
+    const finalName = `jogador_${Date.now()}.${ext}`
+
+    // Tentar upload para o Supabase Storage APENAS se configurado via variáveis de ambiente
+    const supabaseUrl = process.env.SUPABASE_URL
+    const serviceKey = process.env.SUPABASE_SERVICE_KEY
+
+    if (supabaseUrl && serviceKey) {
+      try {
+        const storageUrl = `${supabaseUrl}/storage/v1/object/jogadores/${finalName}`
+        const storageRes = await fetch(storageUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': `image/${ext === 'png' ? 'png' : 'jpeg'}`,
+            'Authorization': `Bearer ${serviceKey}`
+          },
+          body: buffer
+        })
+
+        if (storageRes.ok) {
+          const publicUrl = `${supabaseUrl}/storage/v1/object/public/jogadores/${finalName}`
+          return res.json({ url: publicUrl })
+        }
+      } catch (e) {
+        console.warn("Storage upload fallback:", e.message)
+      }
+    }
+
+    // Fallback seguro: armazena a imagem comprimida (~35KB) diretamente em base64/dataURI
+    const mimeType = imagemBase64.startsWith('data:image/png') ? 'image/png' : 'image/jpeg'
+    const dataUri = `data:${mimeType};base64,${cleanBase64}`
+    res.json({ url: dataUri })
+
+  } catch (error) {
+    console.error("Erro no upload de foto:", error)
+    res.status(500).json({ error: error.message })
+  }
+})
+
 export default router

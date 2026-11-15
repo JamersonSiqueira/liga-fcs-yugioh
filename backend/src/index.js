@@ -10,6 +10,7 @@ import rankingRoutes from './routes/ranking.js'
 import tiposTorneioRoutes from './routes/tiposTorneio.js'
 import adminRoutes from './routes/admin.js'
 import statsRoutes from './routes/stats.js'
+import top8Routes from './routes/top8.js'
 
 const app = express()
 
@@ -21,7 +22,8 @@ const allowedOrigins = [
 app.use(cors({
   origin: "*"
 }))
-app.use(express.json())
+app.use(express.json({ limit: '15mb' }))
+app.use(express.urlencoded({ limit: '15mb', extended: true }))
 
 app.get('/', (req, res) => {
   res.send('Base da API do Yugioh')
@@ -35,6 +37,7 @@ app.use('/banlists', banlistsRoutes)
 app.use('/tipotorneio',tiposTorneioRoutes)
 app.use('/stats', statsRoutes)
 app.use('/admin', adminRoutes)
+app.use('/top8', top8Routes)
 
 
 const PORT = process.env.PORT || 3000

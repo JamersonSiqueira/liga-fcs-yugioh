@@ -10,7 +10,8 @@ router.get('/', async (req, res) => {
       select
         id,
         nickname,
-        nome
+        nome,
+        foto_url
       from jogador
       order by nickname
     `)
@@ -24,14 +25,14 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/', adminMiddleware, async (req, res) => {
-  const { nickname, nome } = req.body
+  const { nickname, nome, foto_url } = req.body
 
   try {
     const result = await pool.query(
-      `insert into jogador (nickname, nome)
-       values ($1, $2)
+      `insert into jogador (nickname, nome, foto_url)
+       values ($1, $2, $3)
        returning *`,
-      [nickname, nome]
+      [nickname, nome, foto_url || null]
     )
 
     res.status(201).json(result.rows[0])
@@ -44,16 +45,17 @@ router.post('/', adminMiddleware, async (req, res) => {
 
 router.put('/:id', adminMiddleware, async (req, res) => {
   const { id } = req.params
-  const { nickname, nome } = req.body
+  const { nickname, nome, foto_url } = req.body
 
   try {
     const result = await pool.query(`
       update jogador
       set nickname = $1,
-          nome = $2
-      where id = $3
+          nome = $2,
+          foto_url = $3
+      where id = $4
       returning *
-    `, [nickname, nome, id])
+    `, [nickname, nome, foto_url !== undefined ? foto_url : null, id])
 
     res.json(result.rows[0])
 
@@ -89,6 +91,7 @@ router.get('/:id/detalhes', async (req, res) => {
       select
         j.id,
         j.nickname,
+        j.foto_url,
 
         -- 🔹 LIGA (MENSAL)
         coalesce(sum(p.vitorias) filter (where tt.modelo_codigo <> 'SEM_RANKING' and tt.nome not ilike '%rel%mpago%'), 0) as vitorias_liga,

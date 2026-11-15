@@ -22,7 +22,7 @@ function App() {
         <Route path="/torneios/:id" element={<TorneioDetalhe />} />
 
         <Route path="/banlists" element={<Banlists />} />
-        {<Route path="/meta" element={<MetaCall />}   />}
+        {<Route path="/meta" element={<MetaCall />} />}
 
         <Route path="/ajustesold" element={<Admin />} />
         <Route path="/ajustes" element={<AdminPanel />} />
